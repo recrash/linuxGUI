@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # 환경 변수 설정
 ENV DEBIAN_FRONTEND=noninteractive
@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     ibus \
     ibus-hangul \
     fonts-noto-cjk \
-    libfuse2 \
     libglib2.0-bin \
     file \
     desktop-file-utils \
@@ -33,11 +32,6 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# AppImage 실행을 위한 권한 설정 - fusermount 경로 확인 후 설정
-RUN if [ -f "/usr/bin/fusermount" ]; then chmod 4755 /usr/bin/fusermount; \
-    elif [ -f "/bin/fusermount" ]; then chmod 4755 /bin/fusermount; \
-    fi
 
 # 로케일 설정
 RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -68,10 +62,6 @@ ARG USER_GID=$USER_UID
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# AppImage 헬퍼 스크립트 추가
-COPY appimage-helper.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/appimage-helper.sh
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME

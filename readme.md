@@ -1,6 +1,6 @@
 # Ubuntu XFCE with Chrome in Docker
 
-이 프로젝트는 Docker를 사용하여 Ubuntu 22.04, XFCE 데스크톱 환경, 그리고 Google Chrome을 설치하고 Windows 10에서 VcXsrv를 통해 GUI를 실행할 수 있도록 설정합니다.
+이 프로젝트는 Docker를 사용하여 Ubuntu 24.04, XFCE 데스크톱 환경, 그리고 Google Chrome을 설치하고 Windows 10에서 VcXsrv를 통해 GUI를 실행할 수 있도록 설정합니다.
 
 ## 목차
 
@@ -15,19 +15,14 @@
 4. [데이터 관리](#4-데이터-관리)
    - [데이터 지속성](#41-데이터-지속성)
    - [공유 폴더 사용](#42-공유-폴더-사용)
-5. [AppImage 사용하기](#5-appimage-사용하기)
-   - [AppImage 기본 실행 방법](#51-appimage-기본-실행-방법)
-   - [헬퍼 스크립트 사용법](#52-헬퍼-스크립트-사용법)
-   - [AppImage 공유 및 관리](#53-appimage-공유-및-관리)
-6. [문제 해결](#6-문제-해결)
-   - [DISPLAY 변수 문제](#61-display-변수-문제)
-   - [한글 표시 문제](#62-한글-표시-문제)
-   - [AppImage 문제 해결](#63-appimage-문제-해결)
-7. [고급 사용법](#7-고급-사용법)
-   - [자동 시작 설정](#71-자동-시작-설정)
-   - [추가 소프트웨어 설치](#72-추가-소프트웨어-설치)
-8. [보안 고려사항](#8-보안-고려사항)
-9. [참고 자료](#9-참고-자료)
+5. [문제 해결](#5-문제-해결)
+   - [DISPLAY 변수 문제](#51-display-변수-문제)
+   - [한글 표시 문제](#52-한글-표시-문제)
+6. [고급 사용법](#6-고급-사용법)
+   - [자동 시작 설정](#61-자동-시작-설정)
+   - [추가 소프트웨어 설치](#62-추가-소프트웨어-설치)
+7. [보안 고려사항](#7-보안-고려사항)
+8. [참고 자료](#8-참고-자료)
 
 ## 1. 필수 요구사항
 
@@ -214,77 +209,11 @@ docker logs ubuntu-xfce
 `shared` 디렉토리는 호스트와 컨테이너 간에 파일을 공유하는 데 사용됩니다.
 
 1. 호스트에서는 프로젝트 디렉토리 내의 `shared` 폴더에 접근할 수 있습니다.
-2. 컨테이너 내부에서는 `/home/user/shared` 경로로 접근할 수 있습니다.
-
-## 5. AppImage 사용하기
-
-### 5.1 AppImage 기본 실행 방법
-
-AppImage는 설치 없이 실행할 수 있는 리눅스용 휴대용 애플리케이션 형식입니다.
-
-1. AppImage 파일 다운로드
-2. 실행 권한 부여
-   ```bash
-   chmod +x 애플리케이션이름.AppImage
-   ```
-3. 파일 실행
-   ```bash
-   ./애플리케이션이름.AppImage
-   ```
-
-### 5.2 헬퍼 스크립트 사용법
-
-이 컨테이너는 AppImage 파일을 쉽게 관리할 수 있는 헬퍼 스크립트를 제공합니다.
-
-#### 5.2.1 AppImage 설치(메뉴 등록)
-
-```bash
-~/appimage-helper.sh install 경로/파일이름.AppImage 애플리케이션이름
-```
-
-이 명령어는:
-- AppImage 파일을 `~/AppImages/` 디렉토리로 복사합니다.
-- 데스크톱 메뉴에 애플리케이션을 등록합니다.
-- 가능하면 아이콘을 추출하여 설정합니다.
-
-#### 5.2.2 AppImage 실행
-
-```bash
-~/appimage-helper.sh run 경로/파일이름.AppImage
-```
-
-#### 5.2.3 설치된 AppImage 목록 보기
-
-```bash
-~/appimage-helper.sh list
-```
-
-#### 5.2.4 AppImage 제거
-
-```bash
-~/appimage-helper.sh remove 애플리케이션이름
-```
-
-#### 5.2.5 AppImage 통합
-
-```bash
-~/appimage-helper.sh integrate 경로/파일이름.AppImage
-```
-
-### 5.3 AppImage 공유 및 관리
-
-Windows 호스트에서 컨테이너로 AppImage 파일을 전송하려면, 프로젝트의 `shared` 폴더를 사용하세요:
-
-1. AppImage 파일을 Windows의 `shared` 폴더에 복사합니다.
 2. 컨테이너 내부에서 `/home/user/shared` 경로로 접근할 수 있습니다.
-3. 헬퍼 스크립트를 사용하여 AppImage를 설치하거나 실행합니다:
-   ```bash
-   ~/appimage-helper.sh install /home/user/shared/애플리케이션.AppImage 애플리케이션이름
-   ```
 
-## 6. 문제 해결
+## 5. 문제 해결
 
-### 6.1 DISPLAY 변수 문제
+### 5.1 DISPLAY 변수 문제
 
 "Cannot open display" 오류가 발생하면:
 
@@ -300,7 +229,7 @@ Windows 호스트에서 컨테이너로 AppImage 파일을 전송하려면, 프�
    ```
    결과가 `host.docker.internal:0.0`이어야 합니다.
 
-### 6.2 한글 표시 문제
+### 5.2 한글 표시 문제
 
 한글이 깨져서 표시되는 경우:
 
@@ -315,35 +244,11 @@ Windows 호스트에서 컨테이너로 AppImage 파일을 전송하려면, 프�
    ```
    `LANG`, `LANGUAGE`, `LC_ALL` 값이 모두 `ko_KR.UTF-8`로 설정되어 있어야 합니다.
 
-### 6.3 AppImage 문제 해결
+## 6. 고급 사용법
 
-1. **실행 권한 오류**: "Permission denied" 오류가 발생하면 실행 권한을 확인하세요.
-   ```bash
-   chmod +x 파일이름.AppImage
-   ```
+### 6.1 자동 시작 설정
 
-2. **공유 라이브러리 오류**: 필요한 라이브러리가 누락된 경우 설치하세요.
-   ```bash
-   # 필요한 라이브러리를 찾기 위한 명령어
-   ldd 파일이름.AppImage
-   ```
-
-3. **데스크톱 통합 문제**: AppImage가 메뉴에 나타나지 않는 경우:
-   ```bash
-   update-desktop-database ~/.local/share/applications
-   ```
-
-4. **기타 문제**: 일부 AppImage는 특정 시스템 라이브러리가 필요할 수 있습니다.
-   ```bash
-   sudo apt-get update
-   sudo apt-get install 필요한패키지이름
-   ```
-
-## 7. 고급 사용법
-
-### 7.1 자동 시작 설정
-
-#### 7.1.1 VcXsrv 자동 시작
+#### 6.1.1 VcXsrv 자동 시작
 
 Windows 시작 시 VcXsrv가 자동으로 실행되도록 설정하려면:
 
@@ -351,7 +256,7 @@ Windows 시작 시 VcXsrv가 자동으로 실행되도록 설정하려면:
 2. Windows 키 + R을 누르고 "shell:startup"을 입력한 후 확인을 클릭합니다.
 3. 시작 폴더가 열리면 XLaunch 구성 파일의 바로 가기를 이 폴더에 복사합니다.
 
-#### 7.1.2 컨테이너 자동 시작
+#### 6.1.2 컨테이너 자동 시작
 
 Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설정하려면:
 
@@ -360,7 +265,7 @@ Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설
 3. "Start Docker Desktop when you log in" 옵션이 체크되어 있는지 확인합니다.
 4. docker-compose.yml 파일에서 `restart: unless-stopped` 설정이 이미 적용되어 있습니다.
 
-### 7.2 추가 소프트웨어 설치
+### 6.2 추가 소프트웨어 설치
 
 컨테이너 내부에서 추가 소프트웨어를 설치하려면:
 
@@ -375,7 +280,7 @@ Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설
    sudo apt-get install [패키지 이름]
    ```
 
-#### 7.2.1 크롬 브라우저 바로가기 설정
+#### 6.2.1 크롬 브라우저 바로가기 설정
 
 XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도록 바로가기를 설정하려면:
 
@@ -387,7 +292,7 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
    - Icon: chrome 아이콘 선택
 4. "Create" 버튼을 클릭합니다.
 
-## 8. 보안 고려사항
+## 7. 보안 고려사항
 
 1. VcXsrv에서 "Disable access control" 옵션은 보안상 취약할 수 있습니다. 공용 네트워크에서는 주의해서 사용하세요.
 
@@ -397,13 +302,9 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
 
 4. 그래픽 집약적인 애플리케이션의 경우 성능 제한이 있을 수 있습니다.
 
-5. 오디오 기능이 필요한 AppImage의 경우, PulseAudio를 설정해야 할 수 있습니다.
-
-## 9. 참고 자료
+## 8. 참고 자료
 
 - [Docker 공식 문서](https://docs.docker.com/)
 - [VcXsrv 프로젝트 페이지](https://sourceforge.net/projects/vcxsrv/)
 - [Ubuntu 공식 문서](https://help.ubuntu.com/)
 - [XFCE 공식 문서](https://docs.xfce.org/)
-- [AppImage 공식 웹사이트](https://appimage.org/)
-- [AppImageHub - AppImage 애플리케이션 디렉토리](https://appimage.github.io/)
