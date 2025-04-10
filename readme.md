@@ -1,72 +1,66 @@
-# Ubuntu XFCE with Chrome in Docker
+# Ubuntu Linux GUI in Docker
 
-이 프로젝트는 Docker를 사용하여 Ubuntu 24.04, XFCE 데스크톱 환경, 그리고 Google Chrome을 설치하고 Windows 10에서 VcXsrv를 통해 GUI를 실행할 수 있도록 설정합니다.
+이 프로젝트는 Docker를 사용하여 Ubuntu 24.04, XFCE 데스크톱 환경, 그리고 Google Chrome을 설치하고 두 가지 방식으로 GUI를 실행할 수 있도록 설정합니다:
+
+1. **VcXsrv 방식**: Windows에 VcXsrv를 설치하여 X 서버를 통해 GUI를 표시합니다.
+2. **NoVNC 방식**: 웹 브라우저를 통해 Linux 데스크톱에 접속합니다 (별도 설치 불필요).
 
 ## 목차
 
 1. [필수 요구사항](#1-필수-요구사항)
-2. [설치 과정](#2-설치-과정)
-   - [Docker Desktop 설치](#21-docker-desktop-설치)
-   - [VcXsrv 설치 및 설정](#22-vcxsrv-설치-및-설정)
-3. [컨테이너 실행 및 관리](#3-컨테이너-실행-및-관리)
-   - [배치 파일 사용법](#31-배치-파일-사용법)
-   - [주요 작업별 사용법](#32-주요-작업별-사용법)
-   - [컨테이너 관리 명령어](#33-컨테이너-관리-명령어)
-4. [데이터 관리](#4-데이터-관리)
-   - [데이터 지속성](#41-데이터-지속성)
-   - [공유 폴더 사용](#42-공유-폴더-사용)
-5. [문제 해결](#5-문제-해결)
-   - [DISPLAY 변수 문제](#51-display-변수-문제)
-   - [한글 표시 문제](#52-한글-표시-문제)
-6. [고급 사용법](#6-고급-사용법)
-   - [자동 시작 설정](#61-자동-시작-설정)
-   - [추가 소프트웨어 설치](#62-추가-소프트웨어-설치)
-7. [보안 고려사항](#7-보안-고려사항)
-8. [참고 자료](#8-참고-자료)
+2. [설치 및 실행 방법](#2-설치-및-실행-방법)
+3. [VcXsrv 방식 사용하기](#3-vcxsrv-방식-사용하기)
+   - [VcXsrv 설치 및 설정](#31-vcxsrv-설치-및-설정)
+   - [VcXsrv 모드로 실행하기](#32-vcxsrv-모드로-실행하기)
+4. [NoVNC 방식 사용하기](#4-novnc-방식-사용하기)
+   - [NoVNC 모드로 실행하기](#41-novnc-모드로-실행하기)
+   - [웹 브라우저로 접속하기](#42-웹-브라우저로-접속하기)
+5. [데이터 관리](#5-데이터-관리)
+   - [데이터 지속성](#51-데이터-지속성)
+   - [공유 폴더 사용](#52-공유-폴더-사용)
+6. [문제 해결](#6-문제-해결)
+   - [VcXsrv 관련 문제](#61-vcxsrv-관련-문제)
+   - [NoVNC 관련 문제](#62-novnc-관련-문제)
+   - [한글 표시 문제](#63-한글-표시-문제)
+   - [FUSE 관련 문제](#64-fuse-관련-문제)
+7. [고급 사용법](#7-고급-사용법)
+   - [자동 시작 설정](#71-자동-시작-설정)
+   - [추가 소프트웨어 설치](#72-추가-소프트웨어-설치)
+8. [보안 고려사항](#8-보안-고려사항)
+9. [참고 자료](#9-참고-자료)
 
 ## 1. 필수 요구사항
 
-- Windows 10 또는 11
-- Docker Desktop
-- VcXsrv (X-Server for Windows)
+- **공통 요구사항**
+  - Windows 10 또는 11
+  - Docker Desktop
+  
+- **VcXsrv 방식 추가 요구사항**
+  - VcXsrv (X-Server for Windows)
 
-## 2. 설치 과정
+- **NoVNC 방식 추가 요구사항**
+  - 웹 브라우저 (Chrome, Firefox, Edge 등)
 
-### 2.1 Docker Desktop 설치
+## 2. 설치 및 실행 방법
 
-Docker Desktop은 Windows에서 Docker 컨테이너를 실행하기 위한 애플리케이션입니다.
+1. 이 저장소를 다운로드하거나 클론합니다.
+2. `linux-gui-launcher.bat` 파일을 더블클릭하여 실행합니다.
+3. 실행 방식을 선택합니다:
+   - VcXsrv 방식: Windows에 VcXsrv를 설치하여 사용
+   - NoVNC 방식: 웹 브라우저를 통해 사용 (별도 설치 불필요)
 
-#### 2.1.1 Docker Desktop 다운로드
+## 3. VcXsrv 방식 사용하기
 
-1. [Docker Desktop 웹사이트](https://www.docker.com/products/docker-desktop/)에서 Windows용 Docker Desktop을 다운로드합니다.
-2. 다운로드한 설치 파일(Docker Desktop Installer.exe)을 실행합니다.
-
-#### 2.1.2 Docker Desktop 설치
-
-1. 설치 마법사의 안내에 따라 진행합니다.
-2. "Configuration" 화면에서 다음 옵션을 확인하세요:
-   - "Use WSL 2 instead of Hyper-V" 옵션이 선택되어 있는지 확인합니다.
-   - "Add shortcut to desktop" 옵션을 선택합니다.
-3. "Install" 버튼을 클릭하여 설치를 시작합니다.
-4. 설치가 완료되면 "Close and restart" 버튼을 클릭하여 컴퓨터를 재시작합니다.
-
-#### 2.1.3 Docker Desktop 설정
-
-1. 컴퓨터 재시작 후 Docker Desktop이 자동으로 실행됩니다.
-2. 초기 설정 화면이 나타나면 "Accept" 버튼을 클릭하여 라이선스 계약에 동의합니다.
-3. Docker Desktop이 WSL 2 백엔드를 사용하도록 구성되었는지 확인합니다.
-4. Docker Desktop이 실행 중인지 확인하려면 시스템 트레이에서 Docker 아이콘을 확인하세요.
-
-### 2.2 VcXsrv 설치 및 설정
+### 3.1 VcXsrv 설치 및 설정
 
 VcXsrv는 Windows에서 X11 디스플레이 서버를 실행하기 위한 소프트웨어입니다.
 
-#### 2.2.1 VcXsrv 설치
+#### 3.1.1 VcXsrv 설치
 
 1. [VcXsrv 다운로드 페이지](https://sourceforge.net/projects/vcxsrv/)에서 최신 버전의 VcXsrv를 다운로드합니다.
 2. 다운로드한 설치 파일을 실행하여 VcXsrv를 설치합니다.
 
-#### 2.2.2 VcXsrv 설정 및 실행
+#### 3.1.2 VcXsrv 설정 및 실행
 
 1. Windows 시작 메뉴에서 XLaunch를 찾아 실행합니다.
 
@@ -75,27 +69,21 @@ VcXsrv는 Windows에서 X11 디스플레이 서버를 실행하기 위한 소프
    - "Display number"를 0으로 설정
    - "Next" 클릭
 
-   ![Display Settings](https://i.imgur.com/example1.png)
-
 3. **Session selection** 화면:
    - "Start no client" 선택
    - "Next" 클릭
-
-   ![Session Selection](https://i.imgur.com/example2.png)
 
 4. **Additional parameters** 화면:
    - "Disable access control" 체크박스 **반드시 체크**
    - "Native OpenGL" 체크 (선택사항)
    - "Next" 클릭
 
-   ![Additional Parameters](https://i.imgur.com/example3.png)
-
 5. **Finish configuration** 화면:
    - "Save configuration" 버튼을 클릭하여 설정을 저장하면 나중에 쉽게 실행할 수 있습니다.
    - 설정 파일을 바탕화면이나 시작 메뉴에 저장해 두는 것이 좋습니다.
    - "Finish" 클릭하여 VcXsrv를 시작합니다.
 
-#### 2.2.3 Windows 방화벽 설정
+#### 3.1.3 Windows 방화벽 설정
 
 VcXsrv가 처음 실행되면 Windows에서 방화벽 허용 여부를 물을 수 있습니다. "허용"을 선택하세요.
 
@@ -106,7 +94,7 @@ VcXsrv가 처음 실행되면 Windows에서 방화벽 허용 여부를 물을 �
 3. 목록에서 "VcXsrv windows xserver"를 찾아 "프라이빗" 및 "공용" 네트워크에 체크하세요.
 4. "확인"을 클릭하여 설정을 저장합니다.
 
-#### 2.2.4 고급 방화벽 설정 (필요한 경우)
+#### 3.1.4 고급 방화벽 설정 (필요한 경우)
 
 더 구체적인 방화벽 규칙이 필요한 경우:
 
@@ -119,15 +107,29 @@ VcXsrv가 처음 실행되면 Windows에서 방화벽 허용 여부를 물을 �
 7. 모든 네트워크 위치에 체크하고 "다음"을 클릭합니다.
 8. 이름을 "VcXsrv Port 6000"으로 지정하고 "마침"을 클릭합니다.
 
-## 3. 컨테이너 실행 및 관리
+### 3.2 VcXsrv 모드로 실행하기
 
-### 3.1 배치 파일 사용법
+1. `linux-gui-launcher.bat` 파일을 실행합니다.
+2. "1. VcXsrv" 옵션을 선택합니다.
+3. 표시되는 메뉴에서 원하는 작업을 선택합니다:
+   ```
+   메뉴:
+   1. 새 컨테이너 생성 (처음 실행시)
+   2. 컨테이너 시작 (중지된 컨테이너가 있을 경우)
+   3. 컨테이너 재시작 (이미 실행 중인 컨테이너가 있을 경우)
+   4. 컨테이너 재구축 (설정 변경 적용, 홈 데이터 유지)
+   ```
+4. 작업이 완료되면 Ubuntu XFCE 데스크톱이 새 창에 표시됩니다.
 
-프로젝트에 포함된 `setup-and-run.bat` 배치 파일을 사용하여 컨테이너를 쉽게 관리할 수 있습니다.
+## 4. NoVNC 방식 사용하기
 
-1. 먼저 VcXsrv(XLaunch)를 실행하고 필요한 설정을 적용합니다 (상세 내용은 VcXsrv 설정 가이드 참조).
-2. `setup-and-run.bat` 파일을 더블클릭하여 실행합니다.
-3. 표시되는 메뉴에서 다음 중 원하는 작업을 선택합니다:
+NoVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으로 Linux 데스크톱에 접속할 수 있습니다.
+
+### 4.1 NoVNC 모드로 실행하기
+
+1. `linux-gui-launcher.bat` 파일을 실행합니다.
+2. "2. NoVNC" 옵션을 선택합니다.
+3. 표시되는 메뉴에서 원하는 작업을 선택합니다:
    ```
    메뉴:
    1. 새 컨테이너 생성 (처음 실행시)
@@ -136,84 +138,31 @@ VcXsrv가 처음 실행되면 Windows에서 방화벽 허용 여부를 물을 �
    4. 컨테이너 재구축 (설정 변경 적용, 홈 데이터 유지)
    ```
 
-4. 작업이 완료되면 Ubuntu XFCE 데스크톱이 새 창에 표시됩니다.
+### 4.2 웹 브라우저로 접속하기
 
-### 3.2 주요 작업별 사용법
+1. 컨테이너가 시작되면 웹 브라우저를 열고 다음 주소로 접속합니다: `http://localhost:6080/`
+2. 웹 페이지에서 "Connect" 버튼을 클릭합니다.
+3. VNC 접속 비밀번호를 요청하면 기본 비밀번호 `password`를 입력합니다.
+4. 이제 웹 브라우저에서 Ubuntu XFCE 데스크톱을 사용할 수 있습니다.
 
-#### 3.2.1 처음 실행 시
+## 5. 데이터 관리
 
-컨테이너를 처음 실행할 때는 메뉴에서 **1번 옵션(새 컨테이너 생성)**을 선택합니다. 이 과정에서 Docker 이미지가 빌드되고 컨테이너가 시작됩니다.
-
-#### 3.2.2 컨테이너 중지 후 재시작
-
-컨테이너를 중지한 후 다시 시작하려면 메뉴에서 **2번 옵션(컨테이너 시작)**을 선택합니다.
-
-#### 3.2.3 실행 중인 컨테이너 재시작
-
-컨테이너가 실행 중인 상태에서 재시작하려면 메뉴에서 **3번 옵션(컨테이너 재시작)**을 선택합니다.
-
-#### 3.2.4 설정 변경 후 재구축
-
-Dockerfile, docker-compose.yml 또는 기타 설정 파일을 수정한 후에는 메뉴에서 **4번 옵션(컨테이너 재구축)**을 선택합니다. 이 옵션은 홈 디렉토리 데이터를 유지하면서 컨테이너를 재구축합니다.
-
-### 3.3 컨테이너 관리 명령어
-
-배치 파일을 사용하지 않고 명령줄에서 직접 컨테이너를 관리할 수도 있습니다:
-
-#### 3.3.1 컨테이너 상태 확인
-
-```bash
-docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter "name=ubuntu-xfce"
-```
-
-#### 3.3.2 컨테이너 시작
-
-```bash
-docker-compose start
-```
-
-#### 3.3.3 컨테이너 재시작
-
-```bash
-docker-compose restart
-```
-
-#### 3.3.4 컨테이너 중지
-
-```bash
-docker-compose stop
-```
-
-#### 3.3.5 컨테이너 종료 및 제거
-
-```bash
-docker-compose down
-```
-
-#### 3.3.6 컨테이너 로그 확인
-
-```bash
-docker logs ubuntu-xfce
-```
-
-## 4. 데이터 관리
-
-### 4.1 데이터 지속성
+### 5.1 데이터 지속성
 
 - **홈 디렉토리 데이터**: 사용자의 홈 디렉토리(`/home/user`) 데이터는 Docker 볼륨에 저장되어 컨테이너를 재구축하거나 삭제해도 유지됩니다.
 - `docker-compose down` 명령은 컨테이너를 중지하고 제거하지만, 볼륨 데이터는 유지됩니다.
 - 볼륨 데이터를 포함하여 모든 것을 삭제하려면 명령 프롬프트에서 `docker-compose down -v` 명령을 실행하세요.
 
-### 4.2 공유 폴더 사용
+### 5.2 공유 폴더 사용
 
 `shared` 디렉토리는 호스트와 컨테이너 간에 파일을 공유하는 데 사용됩니다.
 
 1. 호스트에서는 프로젝트 디렉토리 내의 `shared` 폴더에 접근할 수 있습니다.
 2. 컨테이너 내부에서 `/home/user/shared` 경로로 접근할 수 있습니다.
 
-## 5. 문제 해결
+## 6. 문제 해결
 
-### 5.1 DISPLAY 변수 문제
+### 6.1 VcXsrv 관련 문제
 
 "Cannot open display" 오류가 발생하면:
 
@@ -221,6 +170,7 @@ docker logs ubuntu-xfce
 2. VcXsrv 설정에서 "Disable access control" 옵션이 체크되어 있는지 확인하세요.
 3. Docker 컨테이너를 재시작하세요:
    ```bash
+   cd vcxsrv
    docker-compose restart
    ```
 4. DISPLAY 환경 변수가 올바르게 설정되었는지 확인하세요:
@@ -229,28 +179,57 @@ docker logs ubuntu-xfce
    ```
    결과가 `host.docker.internal:0.0`이어야 합니다.
 
-### 5.2 한글 표시 문제
+### 6.2 NoVNC 관련 문제
+
+웹 브라우저에서 NoVNC에 접속할 수 없는 경우:
+
+1. 컨테이너가 실행 중인지 확인하세요:
+   ```bash
+   cd novnc
+   docker-compose ps
+   ```
+
+2. 컨테이너 로그를 확인하세요:
+   ```bash
+   docker logs ubuntu-novnc
+   ```
+
+3. 6080 포트가 다른 프로그램에서 사용 중인지 확인하세요:
+   ```bash
+   netstat -ano | findstr :6080
+   ```
+
+4. 포트를 변경하려면 `novnc/docker-compose.yml` 파일의 ports 섹션을 수정하세요:
+   ```yaml
+   ports:
+     - "7080:8080"  # 7080 포트로 변경 예시
+   ```
+
+### 6.3 한글 표시 문제
 
 한글이 깨져서 표시되는 경우:
 
 1. 컨테이너가 최신 버전으로 빌드되었는지 확인하세요:
    ```bash
+   cd vcxsrv  # 또는 cd novnc
    docker-compose down
    docker-compose up -d --build
    ```
 2. 컨테이너 내부에서 로케일 설정이 올바른지 확인하세요:
    ```bash
-   docker exec -it ubuntu-xfce bash -c "locale"
+   docker exec -it ubuntu-xfce bash -c "locale"  # VcXsrv 방식
+   docker exec -it ubuntu-novnc bash -c "locale"  # NoVNC 방식
    ```
    `LANG`, `LANGUAGE`, `LC_ALL` 값이 모두 `ko_KR.UTF-8`로 설정되어 있어야 합니다.
 
-### 5.3 FUSE 관련 문제
+### 6.4 FUSE 관련 문제
 
 FUSE 기능을 사용하는 AppImage 애플리케이션이 실행되지 않는 경우:
 
 1. Docker 컨테이너에 FUSE 관련 권한이 적절히 설정되어 있는지 확인하세요:
    ```bash
-   docker exec -it ubuntu-xfce bash -c "ls -la /dev/fuse"
+   docker exec -it ubuntu-xfce bash -c "ls -la /dev/fuse"  # VcXsrv 방식
+   docker exec -it ubuntu-novnc bash -c "ls -la /dev/fuse"  # NoVNC 방식
    ```
 
 2. 필수 패키지 설치:
@@ -288,11 +267,11 @@ FUSE 기능을 사용하는 AppImage 애플리케이션이 실행되지 않는 �
    docker-compose restart
    ```
 
-## 6. 고급 사용법
+## 7. 고급 사용법
 
-### 6.1 자동 시작 설정
+### 7.1 자동 시작 설정
 
-#### 6.1.1 VcXsrv 자동 시작
+#### 7.1.1 VcXsrv 자동 시작 (VcXsrv 방식 사용 시)
 
 Windows 시작 시 VcXsrv가 자동으로 실행되도록 설정하려면:
 
@@ -300,7 +279,7 @@ Windows 시작 시 VcXsrv가 자동으로 실행되도록 설정하려면:
 2. Windows 키 + R을 누르고 "shell:startup"을 입력한 후 확인을 클릭합니다.
 3. 시작 폴더가 열리면 XLaunch 구성 파일의 바로 가기를 이 폴더에 복사합니다.
 
-#### 6.1.2 컨테이너 자동 시작
+#### 7.1.2 컨테이너 자동 시작
 
 Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설정하려면:
 
@@ -309,13 +288,14 @@ Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설
 3. "Start Docker Desktop when you log in" 옵션이 체크되어 있는지 확인합니다.
 4. docker-compose.yml 파일에서 `restart: unless-stopped` 설정이 이미 적용되어 있습니다.
 
-### 6.2 추가 소프트웨어 설치
+### 7.2 추가 소프트웨어 설치
 
 컨테이너 내부에서 추가 소프트웨어를 설치하려면:
 
 1. 터미널에서 다음 명령어로 컨테이너에 접속합니다:
    ```bash
-   docker exec -it ubuntu-xfce bash
+   docker exec -it ubuntu-xfce bash  # VcXsrv 방식
+   docker exec -it ubuntu-novnc bash  # NoVNC 방식
    ```
 
 2. sudo 권한으로 apt-get을 사용하여 원하는 패키지를 설치합니다:
@@ -324,7 +304,7 @@ Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설
    sudo apt-get install [패키지 이름]
    ```
 
-#### 6.2.1 크롬 브라우저 바로가기 설정
+#### 7.2.1 크롬 브라우저 바로가기 설정
 
 XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도록 바로가기를 설정하려면:
 
@@ -336,7 +316,7 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
    - Icon: chrome 아이콘 선택
 4. "Create" 버튼을 클릭합니다.
 
-#### 6.2.2 AppImage 애플리케이션 실행하기
+#### 7.2.2 AppImage 애플리케이션 실행하기
 
 이 환경은 AppImage 애플리케이션을 실행할 수 있도록 FUSE 지원이 설정되어 있습니다:
 
@@ -355,19 +335,23 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
    cp ~/shared/애플리케이션명.AppImage ~/AppImages/
    ```
 
-## 7. 보안 고려사항
+## 8. 보안 고려사항
 
-1. VcXsrv에서 "Disable access control" 옵션은 보안상 취약할 수 있습니다. 공용 네트워크에서는 주의해서 사용하세요.
+1. **VcXsrv 방식**: VcXsrv에서 "Disable access control" 옵션은 보안상 취약할 수 있습니다. 공용 네트워크에서는 주의해서 사용하세요.
 
-2. 컨테이너 내부의 사용자는 sudo 권한을 갖고 있습니다. 필요에 따라 Dockerfile에서 이 설정을 변경할 수 있습니다.
+2. **NoVNC 방식**: 기본 설정에서는 localhost에서만 접속이 가능합니다. 다른 컴퓨터에서 접속하려면 docker-compose.yml 파일의 ports 설정을 변경해야 하며, 이 경우 보안에 주의하세요.
 
-3. Docker Desktop과 VcXsrv는 최신 버전으로 유지하는 것이 좋습니다.
+3. 컨테이너 내부의 사용자는 sudo 권한을 갖고 있습니다. 필요에 따라 Dockerfile에서 이 설정을 변경할 수 있습니다.
 
-4. 그래픽 집약적인 애플리케이션의 경우 성능 제한이 있을 수 있습니다.
+4. Docker Desktop과 VcXsrv는 최신 버전으로 유지하는 것이 좋습니다.
 
-## 8. 참고 자료
+5. 그래픽 집약적인 애플리케이션의 경우 성능 제한이 있을 수 있습니다.
+
+## 9. 참고 자료
 
 - [Docker 공식 문서](https://docs.docker.com/)
 - [VcXsrv 프로젝트 페이지](https://sourceforge.net/projects/vcxsrv/)
+- [NoVNC 프로젝트 페이지](https://github.com/novnc/noVNC)
+- [TigerVNC 프로젝트 페이지](https://tigervnc.org/)
 - [Ubuntu 공식 문서](https://help.ubuntu.com/)
 - [XFCE 공식 문서](https://docs.xfce.org/)

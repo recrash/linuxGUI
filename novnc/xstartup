@@ -1,0 +1,19 @@
+#!/bin/bash
+export XDG_RUNTIME_DIR="/tmp/xdg-runtime-dir"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
+# 한글 입력기 설정
+export LANG=ko_KR.UTF-8
+export LANGUAGE=ko_KR:ko
+export LC_ALL=ko_KR.UTF-8
+export XMODIFIERS=@im=ibus
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export QT4_IM_MODULE=ibus
+
+# ibus 시작
+ibus-daemon -drx &
+
+# XFCE 세션 시작
+exec startxfce4 --compositor=off 
