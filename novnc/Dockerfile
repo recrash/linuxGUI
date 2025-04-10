@@ -33,7 +33,10 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     tigervnc-standalone-server \
     tigervnc-common \
-    tigervnc-xorg-extension \
+    x11vnc \
+    xvfb \
+    openssl \
+    pwgen \
     supervisor \
     nginx \
     novnc \
@@ -43,6 +46,8 @@ RUN apt-get update && apt-get install -y \
     kmod \
     --no-install-recommends \
     && apt-get clean \
+    && ls -la /usr/bin/tiger* || echo "No tigervnc commands found" \
+    && ls -la /usr/bin/vnc* || echo "No vnc commands found" \
     && rm -rf /var/lib/apt/lists/*
 
 # FUSE 설정
@@ -89,7 +94,7 @@ RUN mkdir -p /home/$USERNAME/AppImages \
 RUN mkdir -p /home/$USERNAME/.vnc
 COPY xstartup /home/$USERNAME/.vnc/xstartup
 RUN chmod +x /home/$USERNAME/.vnc/xstartup \
-    && printf "password\npassword\n" | vncpasswd /home/$USERNAME/.vnc/passwd \
+    && echo -n "password" | openssl passwd -1 -stdin > /home/$USERNAME/.vnc/passwd \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
