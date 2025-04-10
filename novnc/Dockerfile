@@ -102,7 +102,7 @@ RUN mkdir -p /home/$USERNAME/AppImages \
 
 # x11vnc용 비밀번호 설정
 RUN mkdir -p /home/$USERNAME/.vnc && \
-    echo "password" > /home/$USERNAME/.vnc/passwd && \
+    x11vnc -storepasswd password /home/$USERNAME/.vnc/passwd && \
     chmod 600 /home/$USERNAME/.vnc/passwd && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
