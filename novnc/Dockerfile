@@ -71,7 +71,7 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
 
 # 기본 사용자 생성
 ARG USERNAME=user
-ARG USER_UID=1001
+ARG USER_UID=1002
 ARG USER_GID=$USER_UID
 
 RUN groupadd --gid $USER_GID $USERNAME \
