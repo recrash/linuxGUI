@@ -82,7 +82,8 @@ docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter
 
 echo.
 echo 설치 및 실행이 완료되었습니다!
-echo 웹 브라우저를 열고 다음 주소로 접속하세요: http://localhost:6080/vnc.html
+echo 웹 브라우저를 열고 다음 주소로 접속하세요: http://localhost:6080/
+echo (또는 더 나은 해상도와 설정을 위해): http://localhost:6080/vnc.html?autoconnect=true&resize=scale&quality=9&compression=0
 echo 기본 VNC 패스워드: password
 echo.
 echo [컨테이너 관리 명령어]

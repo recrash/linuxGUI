@@ -106,6 +106,16 @@ RUN mkdir -p /home/$USERNAME/.vnc && \
     chmod 600 /home/$USERNAME/.vnc/passwd && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
+# 자체 서명 SSL 인증서 생성
+RUN mkdir -p /usr/local/share && \
+    openssl req -new -x509 -days 3650 -nodes \
+    -out /usr/local/share/self.pem \
+    -keyout /usr/local/share/self.pem \
+    -subj "/C=KR/ST=Seoul/L=Seoul/O=LinuxGUI/OU=IT/CN=localhost"
+
+# 커스텀 NoVNC 페이지 복사
+COPY index.html /usr/share/novnc/
+
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
