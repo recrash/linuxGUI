@@ -35,18 +35,21 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     openssl \
     supervisor \
-    python3-pip \
-    --no-install-recommends
+    python3-numpy \
+    python3-websockify \
+    novnc \
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# python으로 novnc 및 websockify 설치 (Ubuntu 패키지 대신)
-RUN pip3 install numpy websockify && \
-    mkdir -p /usr/local/share/novnc && \
-    curl -k -L -o /tmp/novnc.zip https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.zip && \
-    unzip /tmp/novnc.zip -d /tmp && \
-    cp -a /tmp/noVNC-1.4.0/* /usr/local/share/novnc/ && \
-    rm -rf /tmp/novnc.zip /tmp/noVNC-1.4.0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# NoVNC 설정 (Ubuntu 패키지 경로 확인 및 심볼릭 링크 설정)
+RUN mkdir -p /usr/local/share/novnc \
+    && if [ -d /usr/share/novnc ]; then \
+       ln -sf /usr/share/novnc /usr/local/share/novnc; \
+    fi \
+    && if [ -d /usr/share/javascript/novnc ]; then \
+       ln -sf /usr/share/javascript/novnc /usr/local/share/novnc; \
+    fi
 
 # FUSE 지원 패키지 설치
 RUN apt-get update && apt-get install -y \
