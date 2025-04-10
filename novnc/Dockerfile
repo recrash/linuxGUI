@@ -31,8 +31,9 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     # NoVNC 관련 패키지
     net-tools \
-    tigervnc-standalone-server tigervnc-tools \
+    tigervnc-standalone-server \
     tigervnc-common \
+    tigervnc-xorg-extension \
     supervisor \
     nginx \
     novnc \
@@ -63,7 +64,8 @@ ENV QT4_IM_MODULE=ibus
 
 # Chrome 설치
 RUN mkdir -p /etc/apt/keyrings \
-    && wget -q -O /etc/apt/keyrings/google-chrome.gpg https://dl.google.com/linux/linux_signing_key.pub \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg \
+    && chmod a+r /etc/apt/keyrings/google-chrome.gpg \
     && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
@@ -87,7 +89,7 @@ RUN mkdir -p /home/$USERNAME/AppImages \
 RUN mkdir -p /home/$USERNAME/.vnc
 COPY xstartup /home/$USERNAME/.vnc/xstartup
 RUN chmod +x /home/$USERNAME/.vnc/xstartup \
-    && echo "password" | vncpasswd -f > /home/$USERNAME/.vnc/passwd \
+    && printf "password\npassword\n" | vncpasswd /home/$USERNAME/.vnc/passwd \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
@@ -104,4 +106,4 @@ EXPOSE 8080
 COPY start-novnc.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/start-novnc.sh
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
