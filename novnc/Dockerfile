@@ -31,35 +31,31 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     # NoVNC 관련 패키지
     net-tools \
-    tigervnc-standalone-server \
-    tigervnc-common \
     x11vnc \
     xvfb \
     openssl \
-    pwgen \
     supervisor \
-    nginx \
-    novnc \
-    websockify \
-    python3-websockify \
-    python3-numpy \
-    # FUSE 지원을 위한 패키지
+    python3-pip \
+    --no-install-recommends
+
+# python으로 novnc 및 websockify 설치 (Ubuntu 패키지 대신)
+RUN pip3 install numpy websockify && \
+    mkdir -p /usr/local/share/novnc && \
+    curl -k -L -o /tmp/novnc.zip https://github.com/novnc/noVNC/archive/refs/tags/v1.4.0.zip && \
+    unzip /tmp/novnc.zip -d /tmp && \
+    cp -a /tmp/noVNC-1.4.0/* /usr/local/share/novnc/ && \
+    rm -rf /tmp/novnc.zip /tmp/noVNC-1.4.0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# FUSE 지원 패키지 설치
+RUN apt-get update && apt-get install -y \
     libfuse2 \
     fuse \
     kmod \
-    --no-install-recommends \
-    && apt-get clean \
-    && echo "VNC 명령어 확인:" \
-    && ls -la /usr/bin/tiger* || echo "No tigervnc commands found" \
-    && ls -la /usr/bin/vnc* || echo "No vnc commands found" \
-    && ls -la /usr/bin/x11vnc || echo "No x11vnc command found" \
-    && ls -la /usr/bin/Xvfb || echo "No Xvfb command found" \
-    && ls -la /usr/share/novnc || echo "No novnc directory found" \
-    && echo "VNC 명령어 심볼릭 링크 생성:" \
-    && if [ -f /usr/bin/tigervncserver ]; then ln -sf /usr/bin/tigervncserver /usr/local/bin/vncserver; fi \
-    && if [ -f /usr/bin/x11vnc ]; then ln -sf /usr/bin/x11vnc /usr/local/bin/x11vnc; fi \
-    && if [ -f /usr/bin/Xvfb ]; then ln -sf /usr/bin/Xvfb /usr/local/bin/Xvfb; fi \
-    && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # FUSE 설정
 RUN chmod 4755 /bin/fusermount || true \
@@ -101,30 +97,14 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN mkdir -p /home/$USERNAME/AppImages \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
 
-# VNC 및 NoVNC 설정
-RUN mkdir -p /home/$USERNAME/.vnc
-COPY xstartup /home/$USERNAME/.vnc/xstartup
-RUN chmod +x /home/$USERNAME/.vnc/xstartup \
-    && mkdir -p /usr/local/share/xstartup \
-    && ln -sf /home/$USERNAME/.vnc/xstartup /usr/local/share/xstartup/xstartup \
-    && echo -n "password" > /home/$USERNAME/.vnc/passwd \
-    && chmod 600 /home/$USERNAME/.vnc/passwd \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
-
-# X11VNC 설정을 위한 추가 내용
-RUN mkdir -p /etc/X11/xorg.conf.d \
-    && echo 'Section "Module"\n    Load "vnc"\nEndSection' > /etc/X11/xorg.conf.d/10-vnc.conf
+# x11vnc용 비밀번호 설정
+RUN mkdir -p /home/$USERNAME/.vnc && \
+    echo "password" > /home/$USERNAME/.vnc/passwd && \
+    chmod 600 /home/$USERNAME/.vnc/passwd && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# 시작 스크립트 생성
-COPY start-novnc.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/start-novnc.sh \
-    && echo "시작 스크립트 내용:" \
-    && cat /usr/local/bin/start-novnc.sh \
-    && echo "Supervisor 설정 내용:" \
-    && cat /etc/supervisor/conf.d/supervisord.conf
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
@@ -132,4 +112,5 @@ WORKDIR /home/$USERNAME
 # 컨테이너 포트 노출
 EXPOSE 8080
 
+# 시작 명령
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
