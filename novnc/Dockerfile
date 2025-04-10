@@ -49,9 +49,16 @@ RUN apt-get update && apt-get install -y \
     kmod \
     --no-install-recommends \
     && apt-get clean \
+    && echo "VNC 명령어 확인:" \
     && ls -la /usr/bin/tiger* || echo "No tigervnc commands found" \
     && ls -la /usr/bin/vnc* || echo "No vnc commands found" \
+    && ls -la /usr/bin/x11vnc || echo "No x11vnc command found" \
+    && ls -la /usr/bin/Xvfb || echo "No Xvfb command found" \
     && ls -la /usr/share/novnc || echo "No novnc directory found" \
+    && echo "VNC 명령어 심볼릭 링크 생성:" \
+    && if [ -f /usr/bin/tigervncserver ]; then ln -sf /usr/bin/tigervncserver /usr/local/bin/vncserver; fi \
+    && if [ -f /usr/bin/x11vnc ]; then ln -sf /usr/bin/x11vnc /usr/local/bin/x11vnc; fi \
+    && if [ -f /usr/bin/Xvfb ]; then ln -sf /usr/bin/Xvfb /usr/local/bin/Xvfb; fi \
     && rm -rf /var/lib/apt/lists/*
 
 # FUSE 설정
@@ -104,17 +111,25 @@ RUN chmod +x /home/$USERNAME/.vnc/xstartup \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
+# X11VNC 설정을 위한 추가 내용
+RUN mkdir -p /etc/X11/xorg.conf.d \
+    && echo 'Section "Module"\n    Load "vnc"\nEndSection' > /etc/X11/xorg.conf.d/10-vnc.conf
+
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# 시작 스크립트 생성
+COPY start-novnc.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start-novnc.sh \
+    && echo "시작 스크립트 내용:" \
+    && cat /usr/local/bin/start-novnc.sh \
+    && echo "Supervisor 설정 내용:" \
+    && cat /etc/supervisor/conf.d/supervisord.conf
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
 
 # 컨테이너 포트 노출
 EXPOSE 8080
-
-# 시작 스크립트 생성
-COPY start-novnc.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/start-novnc.sh
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
