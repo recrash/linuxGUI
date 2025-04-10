@@ -26,7 +26,7 @@
 
 ## 1. 필수 요구사항
 
-- Windows 10
+- Windows 10 또는 11
 - Docker Desktop
 - VcXsrv (X-Server for Windows)
 
@@ -244,6 +244,50 @@ docker logs ubuntu-xfce
    ```
    `LANG`, `LANGUAGE`, `LC_ALL` 값이 모두 `ko_KR.UTF-8`로 설정되어 있어야 합니다.
 
+### 5.3 FUSE 관련 문제
+
+FUSE 기능을 사용하는 AppImage 애플리케이션이 실행되지 않는 경우:
+
+1. Docker 컨테이너에 FUSE 관련 권한이 적절히 설정되어 있는지 확인하세요:
+   ```bash
+   docker exec -it ubuntu-xfce bash -c "ls -la /dev/fuse"
+   ```
+
+2. 필수 패키지 설치:
+   이미 libfuse2를 설치했지만, 몇 가지 추가 패키지도 필요할 수 있습니다:
+   ```bash
+   sudo apt update
+   sudo apt install -y fuse kmod
+   ```
+   kmod 패키지는 modprobe 명령을 제공합니다.
+
+3. FUSE 모듈 로드:
+   modprobe 명령으로 FUSE 커널 모듈을 로드합니다:
+   ```bash
+   sudo modprobe fuse
+   ```
+
+4. FUSE 장치 확인:
+   FUSE 장치가 제대로 생성되었는지 확인합니다:
+   ```bash
+   ls -la /dev/fuse
+   ```
+
+5. docker-compose.yml 파일에서 다음 설정이 포함되어 있는지 확인하세요:
+   ```yaml
+   devices:
+     - /dev/fuse:/dev/fuse
+   cap_add:
+     - SYS_ADMIN
+   security_opt:
+     - apparmor:unconfined
+   ```
+
+6. 컨테이너를 재시작하고 다시 시도하세요:
+   ```bash
+   docker-compose restart
+   ```
+
 ## 6. 고급 사용법
 
 ### 6.1 자동 시작 설정
@@ -291,6 +335,25 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
    - Command: google-chrome-stable
    - Icon: chrome 아이콘 선택
 4. "Create" 버튼을 클릭합니다.
+
+#### 6.2.2 AppImage 애플리케이션 실행하기
+
+이 환경은 AppImage 애플리케이션을 실행할 수 있도록 FUSE 지원이 설정되어 있습니다:
+
+1. 원하는 AppImage 파일을 호스트의 `shared` 폴더에 복사합니다.
+2. 컨테이너 내부에서 터미널을 열고 다음과 같이 실행 권한을 부여합니다:
+   ```bash
+   chmod +x ~/shared/애플리케이션명.AppImage
+   ```
+3. AppImage 파일을 실행합니다:
+   ```bash
+   ~/shared/애플리케이션명.AppImage
+   ```
+4. 자주 사용하는 AppImage 파일은 홈 디렉토리의 `AppImages` 폴더에 저장하는 것이 좋습니다:
+   ```bash
+   mkdir -p ~/AppImages
+   cp ~/shared/애플리케이션명.AppImage ~/AppImages/
+   ```
 
 ## 7. 보안 고려사항
 
