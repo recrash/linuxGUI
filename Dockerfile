@@ -29,9 +29,17 @@ RUN apt-get update && apt-get install -y \
     unzip \
     ffmpeg \
     software-properties-common \
+    # FUSE 지원을 위한 패키지
+    libfuse2t64 \
+    fuse \
+    kmod \
     --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# FUSE 설정
+RUN chmod 4755 /bin/fusermount || true \
+    && echo "user_allow_other" >> /etc/fuse.conf
 
 # 로케일 설정
 RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -56,12 +64,16 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
 
 # 기본 사용자 생성
 ARG USERNAME=user
-ARG USER_UID=1000
+ARG USER_UID=1001
 ARG USER_GID=$USER_UID
 
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# AppImage 헬퍼 디렉토리 생성
+RUN mkdir -p /home/$USERNAME/AppImages \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
@@ -74,6 +86,7 @@ RUN touch /home/$USERNAME/.Xauthority \
 COPY start-xfce.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/start-xfce.sh
 
+# 일반 사용자로 전환
 USER $USERNAME
 
 CMD ["/usr/local/bin/start-xfce.sh"]

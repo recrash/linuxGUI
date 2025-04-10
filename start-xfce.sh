@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# FUSE 모듈 로드 (컨테이너 시작 시 필요)
+sudo modprobe fuse || true
+
 # 로케일 설정 확인
 export LANG=ko_KR.UTF-8
 export LANGUAGE=ko_KR:ko
@@ -19,6 +22,9 @@ fi
 # 다른 중요한 환경 변수 설정
 export XAUTHORITY=$HOME/.Xauthority
 export PULSE_SERVER=tcp:host.docker.internal
+
+# AppImages 디렉토리 생성
+mkdir -p $HOME/AppImages
 
 # ibus 자동 시작 설정
 mkdir -p ~/.config/autostart/
