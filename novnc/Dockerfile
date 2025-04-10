@@ -40,6 +40,9 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     nginx \
     novnc \
+    websockify \
+    python3-websockify \
+    python3-numpy \
     # FUSE 지원을 위한 패키지
     libfuse2 \
     fuse \
@@ -48,6 +51,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && ls -la /usr/bin/tiger* || echo "No tigervnc commands found" \
     && ls -la /usr/bin/vnc* || echo "No vnc commands found" \
+    && ls -la /usr/share/novnc || echo "No novnc directory found" \
     && rm -rf /var/lib/apt/lists/*
 
 # FUSE 설정
@@ -94,7 +98,9 @@ RUN mkdir -p /home/$USERNAME/AppImages \
 RUN mkdir -p /home/$USERNAME/.vnc
 COPY xstartup /home/$USERNAME/.vnc/xstartup
 RUN chmod +x /home/$USERNAME/.vnc/xstartup \
-    && echo -n "password" | openssl passwd -1 -stdin > /home/$USERNAME/.vnc/passwd \
+    && mkdir -p /usr/local/share/xstartup \
+    && ln -sf /home/$USERNAME/.vnc/xstartup /usr/local/share/xstartup/xstartup \
+    && echo -n "password" > /home/$USERNAME/.vnc/passwd \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
