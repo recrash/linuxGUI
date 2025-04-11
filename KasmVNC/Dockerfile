@@ -1,20 +1,27 @@
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
 # 환경 변수 설정
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Seoul
 
-# 기본 패키지 업데이트 및 설치
-RUN apt-get update && apt-get install -y \
+# apt 저장소 업데이트 및 기본 시스템 패키지 설치
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget \
+    gnupg \
+    sudo \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# XFCE 및 기본 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
     xfce4 \
     xfce4-terminal \
     xfce4-goodies \
     firefox \
-    wget \
-    gnupg \
-    ca-certificates \
     dbus-x11 \
-    sudo \
     vim \
     locales \
     fonts-nanum \
@@ -26,12 +33,15 @@ RUN apt-get update && apt-get install -y \
     file \
     desktop-file-utils \
     libgdk-pixbuf2.0-0 \
-    curl \
     git \
     unzip \
     ffmpeg \
     software-properties-common \
-    # KasmVNC 관련 패키지
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# KasmVNC 관련 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
     net-tools \
     xvfb \
     openssl \
@@ -50,19 +60,17 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libxinerama-dev \
     libgbm-dev \
-    netcat-openbsd \
-    --no-install-recommends \
+    netcat \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # FUSE 지원 패키지 설치
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libfuse2 \
     fuse \
     kmod \
-    --no-install-recommends && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # FUSE 설정
 RUN chmod 4755 /bin/fusermount || true \
@@ -104,8 +112,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN mkdir -p /home/$USERNAME/AppImages \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
 
-# KasmVNC 설치
-RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_bookworm_1.2.0_amd64.deb \
+# KasmVNC 설치 (Ubuntu 22.04 Jammy 버전용 패키지 사용)
+RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_jammy_1.2.0_amd64.deb \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y ./kasmvncserver.deb \
     && rm -f kasmvncserver.deb \
