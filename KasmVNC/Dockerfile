@@ -12,8 +12,13 @@ RUN apt-get update && apt-get upgrade -y && \
     gnupg \
     sudo \
     curl \
+    tzdata \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# 로케일 및 타임존 설정
+RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 # XFCE 및 기본 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -40,6 +45,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# 로케일 설정
+RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen ko_KR.UTF-8 && \
+    update-locale LANG=ko_KR.UTF-8
+
 # KasmVNC 관련 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     net-tools \
@@ -57,13 +67,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfuse2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# 로케일 설정
-RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen ko_KR.UTF-8 && \
-    update-locale LANG=ko_KR.UTF-8 && \
-    ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
 
 ENV LANG=ko_KR.UTF-8
 ENV LANGUAGE=ko_KR:ko
