@@ -10,6 +10,7 @@ services:
     volumes:
       - /dev/fuse:/dev/fuse
       - ../shared:/home/kasm-user/shared
+      - ./startup.sh:/startup.sh # startup.sh 파일을 컨테이너 내부로 마운트
     ports:
       - "6901:6901"
     environment:

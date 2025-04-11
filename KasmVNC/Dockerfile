@@ -153,4 +153,4 @@ EXPOSE 6901
 VOLUME ["$HOME"]
 
 # 컨테이너 시작 명령
-ENTRYPOINT ["/dockerstartup/startup.sh"] 
+ENTRYPOINT ["/startup.sh"] 
