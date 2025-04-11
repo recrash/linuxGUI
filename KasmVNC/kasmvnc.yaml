@@ -1,40 +1,15 @@
-## KasmVNC 기본 설정
-listen_port: 6080
-http_port: 6080
-web_app: /
+[Security]
+AllowHTTP=1
+SecurityTypes=None,VncAuth
 
-security:
-  require_password: true
-  allow_virtual_hosts: true
-  allow_same_origin: true
-  allow_websocket: true
-  
-webserver:
-  allow_http: true
-  use_ssl: false
-  
-vnc:
-  display: :1
-  geometry: 1280x720
-  depth: 24
-  
-ui:
-  fullscreen: true
-  auto_resize: true
-  
-logging:
-  level: info
-  log_websocket: false
-  
-clipboard:
-  enabled: true
+[Connections]
+host=0.0.0.0
+port=5901
+httpPort=6080
 
-## 추가 호환성 설정
-desktop:
-  resolution:
-    width: 1280
-    height: 720
-  allow_resize: true
+[User Interface]
+fullScreen=true
+autoconnect=true
 
-tcp:
-  listen_address: 0.0.0.0
+[Misc]
+webURL=/

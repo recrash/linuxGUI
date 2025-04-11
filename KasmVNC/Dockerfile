@@ -125,7 +125,7 @@ COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/
 WORKDIR /home/$USERNAME
 
 # 컨테이너 포트 노출
-EXPOSE 6080
+EXPOSE 6080 5901
 
 # 시작 명령
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

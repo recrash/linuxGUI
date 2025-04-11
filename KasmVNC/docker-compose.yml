@@ -4,6 +4,7 @@ services:
     container_name: ubuntu-kasmvnc
     ports:
       - "6080:6080"  # KasmVNC 웹 포트 (외부:내부)
+      - "5901:5901"  # KasmVNC VNC 포트 (외부:내부)
     volumes:
       - ../shared:/home/user/shared
       - ubuntu-kasmvnc-home:/home/user  # 사용자 홈 디렉토리 데이터 보존
