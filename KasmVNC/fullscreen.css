@@ -1,15 +1,35 @@
-body {
+body, html {
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    background-color: #000;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    background-color: black;
 }
 
-html {
-    width: 100%;
-    height: 100%;
+#kasm_vnc_canvas_wrapper, 
+canvas,
+.kasmvnc {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 메뉴와 도구모음 숨기기 */
+.ui-menu,
+.navbar,
+.navbar-header,
+.navbar-collapse,
+#navbarSupportedContent,
+#keyboardinput,
+#control_panel_drag {
+    display: none !important;
 }
 
 /* KasmVNC UI 관련 스타일 */

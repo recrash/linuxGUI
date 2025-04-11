@@ -121,16 +121,16 @@ RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/downl
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# KasmVNC 설정 디렉토리 생성
-RUN mkdir -p /home/$USERNAME/.vnc
+# KasmVNC 설정 디렉토리 생성 및 기본 패스워드 설정
+RUN mkdir -p /home/$USERNAME/.vnc && \
+    mkdir -p /etc/kasmvnc && \
+    touch /home/$USERNAME/.vnc/passwd && \
+    chmod 600 /home/$USERNAME/.vnc/passwd && \
+    echo "password" > /home/$USERNAME/.vnc/password && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
-# 패스워드 파일 생성 - 암호화 방식 사용
-RUN echo "password" | openssl passwd -1 -stdin > /home/$USERNAME/.vnc/passwd \
-    && chmod 600 /home/$USERNAME/.vnc/passwd \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
-
-# KasmVNC 설정 파일 생성
-COPY kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
+# kasmvnc.yaml 파일 생성
+COPY kasmvnc.yaml /etc/kasmvnc/
 RUN chmod 644 /etc/kasmvnc/kasmvnc.yaml
 
 # XFCE 설정
