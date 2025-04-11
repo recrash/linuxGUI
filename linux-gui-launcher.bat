@@ -8,13 +8,13 @@ if not exist shared mkdir shared
 echo.
 echo 사용하실 Linux GUI 방식을 선택하세요:
 echo 1. VcXsrv (외부 X 서버 필요 - Windows에 VcXsrv 설치 필요)
-echo 2. NoVNC (웹 브라우저만 필요 - 아무 설치 없이 사용 가능)
+echo 2. KasmVNC (웹 브라우저만 필요 - 아무 설치 없이 사용 가능)
 echo.
 
 set /p userChoice=번호를 선택하세요 (1-2): 
 
 if "%userChoice%"=="1" goto :VcXsrv
-if "%userChoice%"=="2" goto :NoVNC
+if "%userChoice%"=="2" goto :KasmVNC
 goto :InvalidChoice
 
 :VcXsrv
@@ -28,12 +28,12 @@ call setup-and-run.bat
 cd ..
 goto :End
 
-:NoVNC
+:KasmVNC
 echo.
-echo NoVNC 모드를 선택하셨습니다.
+echo KasmVNC 모드를 선택하셨습니다.
 echo 브라우저에서 접속할 수 있는 컨테이너를 시작합니다.
 echo.
-cd novnc
+cd kasmvnc
 
 echo 메뉴:
 echo 1. 새 컨테이너 생성 (처음 실행시)
@@ -42,43 +42,43 @@ echo 3. 컨테이너 재시작 (이미 실행 중인 컨테이너가 있을 경�
 echo 4. 컨테이너 재구축 (설정 변경 적용, 홈 데이터 유지)
 echo.
 
-set /p novncChoice=번호를 선택하세요 (1-4): 
+set /p kasmvncChoice=번호를 선택하세요 (1-4): 
 
-if "%novncChoice%"=="1" goto :NoVNC_CreateNew
-if "%novncChoice%"=="2" goto :NoVNC_StartContainer
-if "%novncChoice%"=="3" goto :NoVNC_RestartContainer 
-if "%novncChoice%"=="4" goto :NoVNC_RebuildContainer
+if "%kasmvncChoice%"=="1" goto :KasmVNC_CreateNew
+if "%kasmvncChoice%"=="2" goto :KasmVNC_StartContainer
+if "%kasmvncChoice%"=="3" goto :KasmVNC_RestartContainer 
+if "%kasmvncChoice%"=="4" goto :KasmVNC_RebuildContainer
 goto :InvalidChoice
 
-:NoVNC_CreateNew
+:KasmVNC_CreateNew
 echo.
-echo 새 NoVNC 컨테이너를 생성합니다...
+echo 새 KasmVNC 컨테이너를 생성합니다...
 docker-compose up -d --build
-goto :NoVNC_CheckStatus
+goto :KasmVNC_CheckStatus
 
-:NoVNC_StartContainer
+:KasmVNC_StartContainer
 echo.
-echo NoVNC 컨테이너를 시작합니다...
+echo KasmVNC 컨테이너를 시작합니다...
 docker-compose start
-goto :NoVNC_CheckStatus
+goto :KasmVNC_CheckStatus
 
-:NoVNC_RestartContainer
+:KasmVNC_RestartContainer
 echo.
-echo NoVNC 컨테이너를 재시작합니다...
+echo KasmVNC 컨테이너를 재시작합니다...
 docker-compose restart
-goto :NoVNC_CheckStatus
+goto :KasmVNC_CheckStatus
 
-:NoVNC_RebuildContainer
+:KasmVNC_RebuildContainer
 echo.
-echo NoVNC 컨테이너를 재구축합니다 (홈 디렉토리 데이터는 유지됩니다)...
+echo KasmVNC 컨테이너를 재구축합니다 (홈 디렉토리 데이터는 유지됩니다)...
 docker-compose down
 docker-compose up -d --build
-goto :NoVNC_CheckStatus
+goto :KasmVNC_CheckStatus
 
-:NoVNC_CheckStatus
+:KasmVNC_CheckStatus
 echo.
 echo 컨테이너 상태:
-docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter "name=ubuntu-novnc"
+docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter "name=ubuntu-kasmvnc"
 
 echo.
 echo 설치 및 실행이 완료되었습니다!

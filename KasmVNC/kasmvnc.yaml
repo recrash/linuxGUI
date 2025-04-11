@@ -1,0 +1,25 @@
+[Security]
+AllowHTTP=1
+
+[Connections]
+host=0.0.0.0
+port=6080
+
+[User Interface]
+fullScreen=true
+scale=remote
+autoconnect=true
+
+[Viewer]
+resize=remote
+quality=9
+compression=0
+reconnect=true
+
+[Input]
+enableKeyboard=true
+enableMouse=true
+enableTouch=true
+
+[Misc]
+webURL=/usr/share/kasmvnc/www/index.html 

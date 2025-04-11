@@ -31,27 +31,29 @@ RUN apt-get update && apt-get install -y \
     unzip \
     ffmpeg \
     software-properties-common \
-    # NoVNC 관련 패키지
+    # KasmVNC 관련 패키지
     net-tools \
-    x11vnc \
     xvfb \
     openssl \
     supervisor \
     python3-numpy \
-    python3-websockify \
-    novnc \
+    libxfont2 \
+    xauth \
+    xkb-data \
+    build-essential \
+    libssl-dev \
+    libxtst-dev \
+    libjpeg-dev \
+    libxcursor-dev \
+    libxdamage-dev \
+    libxrandr-dev \
+    libpng-dev \
+    libxinerama-dev \
+    libgbm-dev \
+    netcat-openbsd \
     --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# NoVNC 설정 (Ubuntu 패키지 경로 확인 및 심볼릭 링크 설정)
-RUN mkdir -p /usr/local/share/novnc \
-    && if [ -d /usr/share/novnc ]; then \
-       ln -sf /usr/share/novnc /usr/local/share/novnc; \
-    fi \
-    && if [ -d /usr/share/javascript/novnc ]; then \
-       ln -sf /usr/share/javascript/novnc /usr/local/share/novnc; \
-    fi
 
 # FUSE 지원 패키지 설치
 RUN apt-get update && apt-get install -y \
@@ -102,20 +104,23 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN mkdir -p /home/$USERNAME/AppImages \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
 
-# x11vnc용 비밀번호 설정
-RUN mkdir -p /home/$USERNAME/.vnc && \
-    x11vnc -storepasswd password /home/$USERNAME/.vnc/passwd && \
-    chmod 600 /home/$USERNAME/.vnc/passwd && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
+# KasmVNC 설치
+RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_bookworm_1.2.0_amd64.deb \
+    && apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y ./kasmvncserver.deb \
+    && rm -f kasmvncserver.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# 커스텀 NoVNC 페이지 복사
-COPY index.html /usr/share/novnc/
-COPY fullscreen.css /usr/share/novnc/
+# KasmVNC 설정 디렉토리 생성 및 설정
+RUN mkdir -p /home/$USERNAME/.vnc \
+    && echo "password" | vncpasswd -f > /home/$USERNAME/.vnc/passwd \
+    && chmod 600 /home/$USERNAME/.vnc/passwd \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
-# NoVNC 기본 페이지 수정하여 CSS 추가
-RUN if [ -f /usr/share/novnc/vnc.html ]; then \
-        sed -i 's|</head>|<link rel="stylesheet" href="fullscreen.css"></head>|g' /usr/share/novnc/vnc.html; \
-    fi
+# KasmVNC 설정 파일 생성
+RUN mkdir -p /etc/kasmvnc/ \
+    && echo '[Security]\nAllowHTTP=1\n[Connections]\nhost=0.0.0.0\nport=6080\n[User Interface]\nfullScreen=true\nscale=remote\nautoconnect=true\n[Input]\n# 입력 관련 설정들\n[Misc]\nwebURL=/usr/share/kasmvnc/www/index.html' > /etc/kasmvnc/kasmvnc.yaml
 
 # XFCE 설정
 RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
@@ -126,11 +131,14 @@ RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# CSS 설정 파일 추가
+COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/fullscreen.css
+
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
 
 # 컨테이너 포트 노출
-EXPOSE 8080
+EXPOSE 6080
 
 # 시작 명령
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
