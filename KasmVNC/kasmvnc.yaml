@@ -1,32 +1,40 @@
 ## KasmVNC 기본 설정
-http:
-  port: 6080
-  ssl_only: false
+listen_port: 6080
+http_port: 6080
+web_app: /
 
-tcp:
-  listen_address: 0.0.0.0
-
-websocket:
+security:
+  require_password: true
+  allow_virtual_hosts: true
+  allow_same_origin: true
+  allow_websocket: true
+  
+webserver:
+  allow_http: true
+  use_ssl: false
+  
+vnc:
+  display: :1
+  geometry: 1280x720
+  depth: 24
+  
+ui:
+  fullscreen: true
+  auto_resize: true
+  
+logging:
+  level: info
+  log_websocket: false
+  
+clipboard:
   enabled: true
-  ssl_only: false
-  port: 6080
 
+## 추가 호환성 설정
 desktop:
   resolution:
     width: 1280
     height: 720
   allow_resize: true
-  pixel_depth: 24
 
-security:
-  authentication:
-    enabled: true
-    allow_readonly_without_password: false
-  brute_force_protection:
-    enabled: true
-    ban_threshold: 5
-    ban_time: 300
-
-features:
-  clipboard:
-    enabled: true
+tcp:
+  listen_address: 0.0.0.0

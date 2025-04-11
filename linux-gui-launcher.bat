@@ -38,15 +38,15 @@ cd kasmvnc
 echo 메뉴:
 echo 1. 새 컨테이너 생성 (처음 실행시)
 echo 2. 컨테이너 시작 (중지된 컨테이너가 있을 경우)
-echo 3. 컨테이너 재시작 (이미 실행 중인 컨테이너가 있을 경우)
-echo 4. 컨테이너 재구축 (설정 변경 적용, 홈 데이터 유지)
+echo 3. 컨테이너 중지
+echo 4. 컨테이너 재구축 (설정 변경 적용)
 echo.
 
 set /p kasmvncChoice=번호를 선택하세요 (1-4): 
 
 if "%kasmvncChoice%"=="1" goto :KasmVNC_CreateNew
 if "%kasmvncChoice%"=="2" goto :KasmVNC_StartContainer
-if "%kasmvncChoice%"=="3" goto :KasmVNC_RestartContainer 
+if "%kasmvncChoice%"=="3" goto :KasmVNC_StopContainer
 if "%kasmvncChoice%"=="4" goto :KasmVNC_RebuildContainer
 goto :InvalidChoice
 
@@ -62,15 +62,16 @@ echo KasmVNC 컨테이너를 시작합니다...
 docker-compose start
 goto :KasmVNC_CheckStatus
 
-:KasmVNC_RestartContainer
+:KasmVNC_StopContainer
 echo.
-echo KasmVNC 컨테이너를 재시작합니다...
-docker-compose restart
-goto :KasmVNC_CheckStatus
+echo KasmVNC 컨테이너를 중지합니다...
+docker-compose stop
+cd ..
+goto :End
 
 :KasmVNC_RebuildContainer
 echo.
-echo KasmVNC 컨테이너를 재구축합니다 (홈 디렉토리 데이터는 유지됩니다)...
+echo KasmVNC 컨테이너를 재구축합니다...
 docker-compose down
 docker-compose up -d --build
 goto :KasmVNC_CheckStatus
@@ -83,20 +84,10 @@ docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter
 echo.
 echo 설치 및 실행이 완료되었습니다!
 echo 웹 브라우저에서 다음 주소로 접속하세요:
-echo   기본 URL: http://localhost:6080/
-echo   (자동으로 최적 설정이 적용됩니다)
+echo   http://localhost:6080/
 echo.
 echo 기본 VNC 패스워드: password
 echo.
-echo [컨테이너 관리 명령어]
-echo  - 컨테이너 중지: docker-compose stop
-echo  - 컨테이너 시작: docker-compose start
-echo  - 컨테이너 재시작: docker-compose restart
-echo  - 컨테이너 및 이미지 삭제: docker-compose down
-echo  - 컨테이너 재구축: docker-compose up -d --build
-echo.
-echo [참고] docker-compose down을 실행해도 볼륨 데이터는 유지됩니다.
-echo [참고] 볼륨 데이터를 포함하여 모두 삭제하려면: docker-compose down -v
 cd ..
 pause
 goto :End

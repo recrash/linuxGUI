@@ -95,6 +95,11 @@ RUN wget -q -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/do
 # KasmVNC 설정 디렉토리 생성
 RUN mkdir -p /home/$USERNAME/.vnc && \
     mkdir -p /etc/kasmvnc && \
+    mkdir -p /var/log && \
+    touch /var/log/xvfb.log /var/log/xvfb.err \
+    /var/log/xfce.log /var/log/xfce.err \
+    /var/log/kasmvnc.log /var/log/kasmvnc.err && \
+    chmod 666 /var/log/*.log /var/log/*.err && \
     echo "password" > /home/$USERNAME/.vnc/passwd && \
     chmod 600 /home/$USERNAME/.vnc/passwd && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
@@ -115,10 +120,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # CSS 설정 파일 추가
 RUN mkdir -p /usr/share/kasmvnc/www/app/styles/
 COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/
-
-# 시작 스크립트
-COPY start-kasmvnc.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/start-kasmvnc.sh
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
