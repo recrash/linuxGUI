@@ -9,12 +9,7 @@ RUN apt-get update && apt-get install -y \
     xfce4 \
     xfce4-terminal \
     xfce4-goodies \
-    xfce4-session \
-    xfce4-panel \
-    xfce4-settings \
-    xfce4-appfinder \
-    xfdesktop4 \
-    xfwm4 \
+    firefox \
     wget \
     gnupg \
     ca-certificates \
@@ -108,49 +103,10 @@ RUN mkdir -p /home/$USERNAME/AppImages \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
 
 # x11vnc용 비밀번호 설정
-RUN mkdir -p /home/$USERNAME/.vnc
-COPY xstartup /home/$USERNAME/.vnc/xstartup
-RUN chmod +x /home/$USERNAME/.vnc/xstartup && \
+RUN mkdir -p /home/$USERNAME/.vnc && \
     x11vnc -storepasswd password /home/$USERNAME/.vnc/passwd && \
     chmod 600 /home/$USERNAME/.vnc/passwd && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
-
-# xfce4 설정 디렉토리 생성
-RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
-    echo '<?xml version="1.0" encoding="UTF-8"?>\n<channel name="xfce4-session" version="1.0">\n\
-  <property name="general" type="empty">\n\
-    <property name="FailsafeSessionName" type="string" value="Failsafe"/>\n\
-  </property>\n\
-  <property name="sessions" type="empty">\n\
-    <property name="Failsafe" type="empty">\n\
-      <property name="IsFailsafe" type="bool" value="true"/>\n\
-      <property name="Count" type="int" value="5"/>\n\
-      <property name="Client0_Command" type="array">\n\
-        <value type="string" value="xfwm4"/>\n\
-      </property>\n\
-      <property name="Client1_Command" type="array">\n\
-        <value type="string" value="xfce4-panel"/>\n\
-      </property>\n\
-      <property name="Client2_Command" type="array">\n\
-        <value type="string" value="xfdesktop"/>\n\
-      </property>\n\
-      <property name="Client3_Command" type="array">\n\
-        <value type="string" value="thunar"/>\n\
-      </property>\n\
-      <property name="Client4_Command" type="array">\n\
-        <value type="string" value="xfce4-terminal"/>\n\
-      </property>\n\
-    </property>\n\
-  </property>\n\
-</channel>' > /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
-
-# 자체 서명 SSL 인증서 생성
-RUN mkdir -p /usr/local/share && \
-    openssl req -new -x509 -days 3650 -nodes \
-    -out /usr/local/share/self.pem \
-    -keyout /usr/local/share/self.pem \
-    -subj "/C=KR/ST=Seoul/L=Seoul/O=LinuxGUI/OU=IT/CN=localhost"
 
 # 커스텀 NoVNC 페이지 복사
 COPY index.html /usr/share/novnc/
