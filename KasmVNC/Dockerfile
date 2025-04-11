@@ -50,37 +50,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxfont2 \
     xauth \
     xkb-data \
-    build-essential \
     libssl-dev \
     libxtst-dev \
     libjpeg-dev \
-    libxcursor-dev \
-    libxdamage-dev \
     libxrandr-dev \
-    libpng-dev \
-    libxinerama-dev \
-    libgbm-dev \
-    netcat \
-    expect \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# FUSE 지원 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
     libfuse2 \
-    fuse \
-    kmod \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# FUSE 설정
-RUN chmod 4755 /bin/fusermount || true \
-    && echo "user_allow_other" >> /etc/fuse.conf
 
 # 로케일 설정
 RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen ko_KR.UTF-8 && \
-    update-locale LANG=ko_KR.UTF-8
+    update-locale LANG=ko_KR.UTF-8 && \
+    ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 ENV LANG=ko_KR.UTF-8
 ENV LANGUAGE=ko_KR:ko
@@ -88,17 +71,6 @@ ENV LC_ALL=ko_KR.UTF-8
 ENV XMODIFIERS=@im=ibus
 ENV GTK_IM_MODULE=ibus
 ENV QT_IM_MODULE=ibus
-ENV QT4_IM_MODULE=ibus
-
-# Chrome 설치
-RUN mkdir -p /etc/apt/keyrings \
-    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg \
-    && chmod a+r /etc/apt/keyrings/google-chrome.gpg \
-    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 # 기본 사용자 생성
 ARG USERNAME=user
@@ -109,24 +81,19 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# AppImage 헬퍼 디렉토리 생성
-RUN mkdir -p /home/$USERNAME/AppImages \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME/AppImages
-
-# KasmVNC 설치 (Ubuntu 22.04 Jammy 버전용 패키지 사용)
-RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_jammy_1.2.0_amd64.deb \
+# KasmVNC 설치
+RUN wget -q -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_jammy_1.2.0_amd64.deb \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y ./kasmvncserver.deb \
     && rm -f kasmvncserver.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# KasmVNC 설정
+# KasmVNC 설정 디렉토리 생성
 RUN mkdir -p /home/$USERNAME/.vnc && \
-    chmod 700 /home/$USERNAME/.vnc && \
-    echo "password" > /home/$USERNAME/.vnc/pass && \
-    chmod 600 /home/$USERNAME/.vnc/pass && \
     mkdir -p /etc/kasmvnc && \
+    echo "password" > /home/$USERNAME/.vnc/passwd && \
+    chmod 600 /home/$USERNAME/.vnc/passwd && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
 # kasmvnc.yaml 설정
@@ -143,7 +110,12 @@ RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # CSS 설정 파일 추가
-COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/fullscreen.css
+RUN mkdir -p /usr/share/kasmvnc/www/app/styles/
+COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/
+
+# 시작 스크립트
+COPY start-kasmvnc.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start-kasmvnc.sh
 
 # 작업 디렉토리 설정
 WORKDIR /home/$USERNAME
