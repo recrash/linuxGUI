@@ -7,37 +7,6 @@ body, html {
     background-color: black;
 }
 
-#kasm_vnc_canvas_wrapper, 
-canvas,
-.kasmvnc {
-    position: absolute !important;
-    width: 100% !important;
-    height: 100% !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 메뉴와 도구모음 숨기기 */
-.ui-menu,
-.navbar,
-.navbar-header,
-.navbar-collapse,
-#navbarSupportedContent,
-#keyboardinput,
-#control_panel_drag {
-    display: none !important;
-}
-
-/* KasmVNC UI 관련 스타일 */
-#top_bar, #keyboardinput, #control_panel_drag {
-    display: none !important;
-}
-
-/* 캔버스가 전체 화면을 채우도록 설정 */
 canvas {
     position: absolute !important;
     width: 100% !important;
@@ -52,27 +21,36 @@ canvas {
 
 /* KasmVNC UI 컨테이너 전체 화면 설정 */
 #kasm_vnc_canvas_wrapper, 
+.kasmvnc,
 #screen, 
 .displayContainer, 
 .canvasContainer {
+    position: absolute !important;
     width: 100% !important;
     height: 100% !important;
-    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* 상태바 스타일 */
-#status_bar {
-    background-color: rgba(70, 70, 70, 0.7);
-    border-radius: 0 0 10px 10px;
-}
-
-/* 모든 메뉴와 도구모음 숨기기 */
+/* 메뉴와 UI 요소 숨기기 */
+#top_bar, 
+#keyboardinput, 
+#control_panel_drag,
+.ui-menu,
+.navbar,
+.navbar-header,
+.navbar-collapse,
+#navbarSupportedContent,
 .navContainer, 
 .settings-dialog-header, 
 .settings-dialog {
     display: none !important;
+}
+
+/* 상태바 스타일 */
+#status_bar {
+    background-color: rgba(70, 70, 70, 0.7);
+    border-radius: 0 0 10px 10px;
 } 

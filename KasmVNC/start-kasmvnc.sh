@@ -27,12 +27,12 @@ if [ -f "/home/user/kasmvnc.yaml" ]; then
 fi
 
 # KasmVNC 패스워드 설정
-if [ ! -f /home/user/.vnc/passwd ]; then
+if [ ! -f /home/user/.vnc/pass ]; then
     echo "KasmVNC 패스워드를 설정합니다..."
     mkdir -p /home/user/.vnc
-    # openssl을 사용하여 패스워드 파일 직접 생성
-    echo "password" | openssl passwd -1 -stdin > /home/user/.vnc/passwd
-    chmod 600 /home/user/.vnc/passwd
+    chmod 700 /home/user/.vnc
+    echo "password" > /home/user/.vnc/pass
+    chmod 600 /home/user/.vnc/pass
 fi
 
 # CSS 파일 복사
@@ -45,7 +45,7 @@ fi
 # KasmVNC 서버 시작
 echo "KasmVNC 서버를 시작합니다..."
 cd /home/user
-vncserver :1 -passwd /home/user/.vnc/passwd -geometry 1280x720 -depth 24 -websocketPort 6080 -httpPort 6080 -SecurityTypes None,VncAuth
+vncserver :1 -geometry 1280x720 -depth 24
 
 echo "KasmVNC 서버가 시작되었습니다"
 echo "웹 브라우저에서 http://localhost:6080/으로 접속하세요."
