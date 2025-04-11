@@ -110,6 +110,16 @@ RUN mkdir -p /home/$USERNAME/.vnc && \
 
 # 커스텀 NoVNC 페이지 복사
 COPY index.html /usr/share/novnc/
+COPY fullscreen.css /usr/share/novnc/
+COPY xfce-settings.sh /home/$USERNAME/xfce-settings.sh
+
+# NoVNC 기본 페이지 수정하여 CSS 추가
+RUN if [ -f /usr/share/novnc/vnc.html ]; then \
+        sed -i 's|</head>|<link rel="stylesheet" href="fullscreen.css"></head>|g' /usr/share/novnc/vnc.html; \
+    fi && \
+    chmod +x /home/$USERNAME/xfce-settings.sh && \
+    chown $USERNAME:$USERNAME /home/$USERNAME/xfce-settings.sh && \
+    su - $USERNAME -c "/home/$USERNAME/xfce-settings.sh"
 
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
