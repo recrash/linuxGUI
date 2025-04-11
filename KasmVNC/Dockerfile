@@ -122,10 +122,17 @@ RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/downl
     && rm -rf /var/lib/apt/lists/*
 
 # KasmVNC 설정 디렉토리 생성 및 설정
+# 패스워드 파일을 직접 생성
 RUN mkdir -p /home/$USERNAME/.vnc \
-    && bash -c "echo -e 'password\npassword\n' | vncpasswd /home/$USERNAME/.vnc/passwd" \
+    && openssl passwd -1 password > /home/$USERNAME/.vnc/passwd \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
+
+# 또는 다음 방법으로도 가능
+# RUN mkdir -p /home/$USERNAME/.vnc && \
+#     echo "user:$(openssl passwd -1 password)" > /home/$USERNAME/.vnc/passwd && \
+#     chmod 600 /home/$USERNAME/.vnc/passwd && \
+#     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
 # KasmVNC 설정 파일 생성
 RUN mkdir -p /etc/kasmvnc/ \

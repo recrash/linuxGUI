@@ -30,7 +30,8 @@ fi
 if [ ! -f /home/user/.vnc/passwd ]; then
     echo "KasmVNC 패스워드를 설정합니다..."
     mkdir -p /home/user/.vnc
-    echo -e "password\npassword\n" | vncpasswd /home/user/.vnc/passwd
+    # openssl을 사용하여 패스워드 파일 직접 생성
+    openssl passwd -1 password > /home/user/.vnc/passwd
     chmod 600 /home/user/.vnc/passwd
 fi
 
