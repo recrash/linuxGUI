@@ -61,6 +61,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxinerama-dev \
     libgbm-dev \
     netcat \
+    expect \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -122,7 +123,7 @@ RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/downl
 
 # KasmVNC 설정 디렉토리 생성 및 설정
 RUN mkdir -p /home/$USERNAME/.vnc \
-    && echo "password" | vncpasswd -f > /home/$USERNAME/.vnc/passwd \
+    && bash -c "echo -e 'password\npassword\n' | vncpasswd /home/$USERNAME/.vnc/passwd" \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
