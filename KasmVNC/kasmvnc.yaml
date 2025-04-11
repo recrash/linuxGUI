@@ -1,15 +1,16 @@
-[Security]
-AllowHTTP=1
-SecurityTypes=None,VncAuth
+---
+Security:
+  AllowHTTP: 1
+  SecurityTypes: "None,VncAuth"
 
-[Connections]
-host=0.0.0.0
-port=5901
-httpPort=6080
+Connections:
+  host: "0.0.0.0"
+  port: 5901
+  httpPort: 6080
 
-[User Interface]
-fullScreen=true
-autoconnect=true
+"User Interface":
+  fullScreen: true
+  autoconnect: true
 
-[Misc]
-webURL=/
+Misc:
+  webURL: "/"
