@@ -44,7 +44,7 @@ fi
 
 # KasmVNC 서버 시작
 echo "KasmVNC 서버를 시작합니다..."
-vncserver -blacklistthreshold=0 -SecurityTypes VncAuth -PasswordFile=/home/user/.vnc/passwd -disableBasicAuth -geometry 1280x720 -depth 24 -fg -xstartup /usr/bin/startxfce4 -listen 0.0.0.0 -websocketPort 6080 -httpd /usr/share/kasmvnc/www :1
+vncserver -blacklistthreshold=0 -SecurityTypes None,VncAuth -PasswordFile=/home/user/.vnc/passwd -disableBasicAuth -geometry 1280x720 -depth 24 -fg -xstartup /usr/bin/startxfce4 -listen 0.0.0.0 -websocketPort 6080 -httpd /usr/share/kasmvnc/www :1
 
 echo "KasmVNC 서버가 시작되었습니다"
 echo "웹 브라우저에서 http://localhost:6080/으로 접속하세요."

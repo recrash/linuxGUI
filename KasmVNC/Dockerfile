@@ -121,22 +121,17 @@ RUN wget -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/downl
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# KasmVNC 설정 디렉토리 생성 및 설정
-# 패스워드 파일을 직접 생성
-RUN mkdir -p /home/$USERNAME/.vnc \
-    && openssl passwd -1 password > /home/$USERNAME/.vnc/passwd \
+# KasmVNC 설정 디렉토리 생성
+RUN mkdir -p /home/$USERNAME/.vnc
+
+# 패스워드 파일 생성 - 암호화 방식 사용
+RUN echo "password" | openssl passwd -1 -stdin > /home/$USERNAME/.vnc/passwd \
     && chmod 600 /home/$USERNAME/.vnc/passwd \
     && chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
 
-# 또는 다음 방법으로도 가능
-# RUN mkdir -p /home/$USERNAME/.vnc && \
-#     echo "user:$(openssl passwd -1 password)" > /home/$USERNAME/.vnc/passwd && \
-#     chmod 600 /home/$USERNAME/.vnc/passwd && \
-#     chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
-
 # KasmVNC 설정 파일 생성
-RUN mkdir -p /etc/kasmvnc/ \
-    && echo '[Security]\nAllowHTTP=1\n[Connections]\nhost=0.0.0.0\nport=6080\n[User Interface]\nfullScreen=true\nscale=remote\nautoconnect=true\n[Input]\n# 입력 관련 설정들\n[Misc]\nwebURL=/usr/share/kasmvnc/www/index.html' > /etc/kasmvnc/kasmvnc.yaml
+COPY kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
+RUN chmod 644 /etc/kasmvnc/kasmvnc.yaml
 
 # XFCE 설정
 RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \

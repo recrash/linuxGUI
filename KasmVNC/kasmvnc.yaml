@@ -1,20 +1,25 @@
 [Security]
 AllowHTTP=1
+SecurityTypes=None,VncAuth
+EnablePassword=1
 
 [Connections]
 host=0.0.0.0
 port=6080
+websocketPort=6080
+httpPort=6080
 
 [User Interface]
 fullScreen=true
 scale=remote
 autoconnect=true
+resizeMode=remote
 
 [Viewer]
-resize=remote
 quality=9
 compression=0
 reconnect=true
+showDotCursor=true
 
 [Input]
 enableKeyboard=true
