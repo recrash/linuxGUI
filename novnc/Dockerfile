@@ -111,15 +111,17 @@ RUN mkdir -p /home/$USERNAME/.vnc && \
 # 커스텀 NoVNC 페이지 복사
 COPY index.html /usr/share/novnc/
 COPY fullscreen.css /usr/share/novnc/
-COPY xfce-settings.sh /home/$USERNAME/xfce-settings.sh
 
 # NoVNC 기본 페이지 수정하여 CSS 추가
 RUN if [ -f /usr/share/novnc/vnc.html ]; then \
         sed -i 's|</head>|<link rel="stylesheet" href="fullscreen.css"></head>|g' /usr/share/novnc/vnc.html; \
-    fi && \
-    chmod +x /home/$USERNAME/xfce-settings.sh && \
-    chown $USERNAME:$USERNAME /home/$USERNAME/xfce-settings.sh && \
-    su - $USERNAME -c "/home/$USERNAME/xfce-settings.sh"
+    fi
+
+# XFCE 설정
+RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><channel name="displays" version="1.0"><property name="Default" type="empty"><property name="VNC-0" type="string" value="VNC 디스플레이"><property name="Active" type="bool" value="true"/><property name="Resolution" type="string" value="1280x720"/><property name="RefreshRate" type="double" value="60.000000"/><property name="Primary" type="bool" value="true"/><property name="Position" type="empty"><property name="X" type="int" value="0"/><property name="Y" type="int" value="0"/></property></property></property></channel>' > /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml/displays.xml && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><channel name="xfce4-panel" version="1.0"><property name="panels" type="array"><value type="int" value="1"/><property name="panel-1" type="empty"><property name="position" type="string" value="p=8;x=640;y=760"/><property name="length" type="uint" value="100"/><property name="position-locked" type="bool" value="true"/></property></property></channel>' > /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml && \
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
 
 # Supervisor 설정
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
