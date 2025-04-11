@@ -1,131 +1,156 @@
 FROM ubuntu:22.04
 
-# 환경 변수 설정
 ENV DEBIAN_FRONTEND=noninteractive
+ENV HOME=/home/kasm-user
+ENV STARTUPDIR=/dockerstartup
+ENV INST_SCRIPTS=/dockerstartup/install
+ENV KASM_VNC_PATH=/usr/share/kasmvnc
 ENV TZ=Asia/Seoul
 
-# apt 저장소 업데이트 및 기본 시스템 패키지 설치
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
+WORKDIR $HOME
+
+# 필수 패키지 설치
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
-    gnupg \
     sudo \
     curl \
-    tzdata \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# 로케일 및 타임존 설정
-RUN ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata
-
-# XFCE 및 기본 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    gnupg2 \
+    git \
+    python3 \
+    python3-pip \
+    software-properties-common \
+    build-essential \
+    net-tools \
+    locales \
+    libfuse2 \
+    fuse \
+    kmod \
     xfce4 \
     xfce4-terminal \
     xfce4-goodies \
-    firefox \
-    dbus-x11 \
-    vim \
-    locales \
-    fonts-nanum \
-    language-pack-ko \
+    fonts-noto-cjk \
+    fonts-noto-cjk-extra \
     ibus \
     ibus-hangul \
-    fonts-noto-cjk \
-    libglib2.0-bin \
-    file \
-    desktop-file-utils \
-    libgdk-pixbuf2.0-0 \
-    git \
+    uim \
+    uim-byeoru \
+    fcitx \
+    fcitx-hangul \
+    im-config \
+    tzdata \
+    vim \
+    alsa-utils \
+    x11-utils \
+    openssh-client \
+    zip \
     unzip \
-    ffmpeg \
-    software-properties-common \
+    htop \
+    neofetch \
+    dbus \
+    dbus-x11 \
+    policykit-1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# 시간대 설정
+RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 # 로케일 설정
-RUN sed -i 's/# ko_KR.UTF-8 UTF-8/ko_KR.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen ko_KR.UTF-8 && \
-    update-locale LANG=ko_KR.UTF-8
-
-# KasmVNC 관련 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    net-tools \
-    xvfb \
-    openssl \
-    supervisor \
-    python3-numpy \
-    libxfont2 \
-    xauth \
-    xkb-data \
-    libssl-dev \
-    libxtst-dev \
-    libjpeg-dev \
-    libxrandr-dev \
-    libfuse2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV LANG=ko_KR.UTF-8
-ENV LANGUAGE=ko_KR:ko
-ENV LC_ALL=ko_KR.UTF-8
-ENV XMODIFIERS=@im=ibus
-ENV GTK_IM_MODULE=ibus
-ENV QT_IM_MODULE=ibus
-
-# 기본 사용자 생성
-ARG USERNAME=user
-ARG USER_UID=1002
-ARG USER_GID=$USER_UID
-
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN locale-gen ko_KR.UTF-8
+ENV LANG='ko_KR.UTF-8' LANGUAGE='ko_KR:ko' LC_ALL='ko_KR.UTF-8'
 
 # KasmVNC 설치
-RUN wget -q -O kasmvncserver.deb https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_jammy_1.2.0_amd64.deb \
+RUN mkdir -p $INST_SCRIPTS \
+    && mkdir -p $STARTUPDIR \
+    && mkdir -p $KASM_VNC_PATH \
+    && cd /tmp \
+    && curl -fsSL -O https://github.com/kasmtech/KasmVNC/releases/download/v1.2.0/kasmvncserver_jammy_1.2.0_amd64.deb \
     && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y ./kasmvncserver.deb \
-    && rm -f kasmvncserver.deb \
+    && apt-get install -y ./kasmvncserver_jammy_1.2.0_amd64.deb \
+    && rm -f ./kasmvncserver_jammy_1.2.0_amd64.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# KasmVNC 설정 디렉토리 생성
-RUN mkdir -p /home/$USERNAME/.vnc && \
-    mkdir -p /etc/kasmvnc && \
-    mkdir -p /var/log && \
-    touch /var/log/xvfb.log /var/log/xvfb.err \
-    /var/log/xfce.log /var/log/xfce.err \
-    /var/log/kasmvnc.log /var/log/kasmvnc.err && \
-    chmod 666 /var/log/*.log /var/log/*.err && \
-    echo "password" > /home/$USERNAME/.vnc/passwd && \
-    chmod 600 /home/$USERNAME/.vnc/passwd && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME/.vnc
+# VSCode 설치
+RUN wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" \
+    && apt-get update \
+    && apt-get install -y code \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+    
+# 사용자 추가
+RUN useradd -m -d $HOME -s /bin/bash kasm-user \
+    && echo "kasm-user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
+    && usermod -aG sudo kasm-user
 
-# kasmvnc.yaml 설정
-COPY kasmvnc.yaml /etc/kasmvnc/
-RUN chmod 644 /etc/kasmvnc/kasmvnc.yaml
+# FUSE 권한 설정
+RUN chmod a+x /usr/bin/fusermount \
+    && sed -i 's/#user_allow_other/user_allow_other/g' /etc/fuse.conf
+
+# Firefox 최신 버전 설치
+RUN mkdir -p /opt/firefox \
+    && wget -O /tmp/firefox-latest.tar.xz "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=ko" \
+    && tar -xf /tmp/firefox-latest.tar.xz -C /opt/firefox \
+    && rm /tmp/firefox-latest.tar.xz \
+    && ln -s /opt/firefox/firefox/firefox /usr/local/bin/firefox \
+    && chown -R kasm-user:kasm-user /opt/firefox
+
+# Firefox 데스크톱 파일 생성
+RUN mkdir -p $HOME/.local/share/applications \
+    && echo "[Desktop Entry]\nVersion=1.0\nName=Firefox\nComment=Browse the Web\nExec=/opt/firefox/firefox/firefox %u\nIcon=/opt/firefox/firefox/browser/chrome/icons/default/default128.png\nTerminal=false\nType=Application\nCategories=Network;WebBrowser;\nMimeType=text/html;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;text/mml;x-scheme-handler/http;x-scheme-handler/https;" > $HOME/.local/share/applications/firefox.desktop \
+    && chmod +x $HOME/.local/share/applications/firefox.desktop
+
+# Firefox를 기본 웹 브라우저로 설정
+RUN mkdir -p $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/ \
+    && echo '<?xml version="1.0" encoding="UTF-8"?>\n<channel name="xfce4-settings-manager" version="1.0">\n  <property name="last" type="empty">\n    <property name="window-width" type="int" value="640"/>\n    <property name="window-height" type="int" value="500"/>\n  </property>\n</channel>' > $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-settings-manager.xml \
+    && mkdir -p $HOME/.config/mimeapps.list.d \
+    && echo "[Default Applications]\ntext/html=firefox.desktop\nx-scheme-handler/http=firefox.desktop\nx-scheme-handler/https=firefox.desktop\nx-scheme-handler/about=firefox.desktop\napplication/xhtml+xml=firefox.desktop" > $HOME/.config/mimeapps.list \
+    && update-alternatives --install /usr/bin/x-www-browser x-www-browser /opt/firefox/firefox/firefox 100 \
+    && update-alternatives --install /usr/bin/gnome-www-browser gnome-www-browser /opt/firefox/firefox/firefox 100 \
+    && xdg-settings set default-web-browser firefox.desktop
+
+# 한국어 입력기 설정
+RUN mkdir -p $HOME/.config/ibus/bus && \
+    mkdir -p $HOME/.config/fcitx/conf && \
+    mkdir -p $HOME/.config/autostart && \
+    echo "[Desktop Entry]\nName=Fcitx\nComment=Start Fcitx\nExec=fcitx -d\nIcon=fcitx\nTerminal=false\nType=Application\nCategories=System;Utility;\nStartupNotify=false\nX-GNOME-Autostart-Phase=Applications\nX-GNOME-Autostart-Delay=0\nX-GNOME-AutoRestart=false\nX-KDE-autostart-after=panel\nX-KDE-autostart-phase=1" > $HOME/.config/autostart/fcitx.desktop
+
+# AppImage 지원 추가
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    libegl1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 시작 스크립트 추가
+COPY startup.sh $STARTUPDIR/
+RUN chmod +x $STARTUPDIR/startup.sh
+
+# X11 디렉토리 및 권한 설정
+RUN mkdir -p /tmp/.X11-unix && \
+    chmod 1777 /tmp/.X11-unix && \
+    mkdir -p $HOME/.vnc && \
+    chmod 755 $HOME/.vnc && \
+    mkdir -p $HOME/.config && \
+    chmod 755 $HOME/.config && \
+    chown -R kasm-user:kasm-user $HOME
+
+# dbus 설정
+RUN mkdir -p /var/run/dbus && \
+    chown kasm-user:kasm-user /var/run/dbus && \
+    dbus-uuidgen > /etc/machine-id
 
 # XFCE 설정
-RUN mkdir -p /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml && \
-    echo '<?xml version="1.0" encoding="UTF-8"?><channel name="displays" version="1.0"><property name="Default" type="empty"><property name="VNC-0" type="string" value="VNC 디스플레이"><property name="Active" type="bool" value="true"/><property name="Resolution" type="string" value="1280x720"/><property name="RefreshRate" type="double" value="60.000000"/><property name="Primary" type="bool" value="true"/><property name="Position" type="empty"><property name="X" type="int" value="0"/><property name="Y" type="int" value="0"/></property></property></property></channel>' > /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml/displays.xml && \
-    echo '<?xml version="1.0" encoding="UTF-8"?><channel name="xfce4-panel" version="1.0"><property name="panels" type="array"><value type="int" value="1"/><property name="panel-1" type="empty"><property name="position" type="string" value="p=8;x=640;y=760"/><property name="length" type="uint" value="100"/><property name="position-locked" type="bool" value="true"/></property></property></channel>' > /home/$USERNAME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
+COPY xfce4 $HOME/.config/xfce4/
+RUN chown -R kasm-user:kasm-user $HOME/.config
 
-# Supervisor 설정
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+USER kasm-user
 
-# CSS 설정 파일 추가
-RUN mkdir -p /usr/share/kasmvnc/www/app/styles/
-COPY fullscreen.css /usr/share/kasmvnc/www/app/styles/
+# 포트 및 볼륨 설정
+EXPOSE 6901
+VOLUME ["$HOME"]
 
-# 작업 디렉토리 설정
-WORKDIR /home/$USERNAME
-
-# 컨테이너 포트 노출
-EXPOSE 6080 5901
-
-# 시작 명령
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# 컨테이너 시작 명령
+ENTRYPOINT ["/dockerstartup/startup.sh"] 

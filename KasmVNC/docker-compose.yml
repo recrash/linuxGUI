@@ -1,43 +1,24 @@
+version: '3.8'
+
 services:
-  ubuntu-kasmvnc:
-    build: .
-    container_name: ubuntu-kasmvnc
-    ports:
-      - "6080:6080"  # KasmVNC 웹 포트 (외부:내부)
-      - "5901:5901"  # KasmVNC VNC 포트 (외부:내부)
+  kasmvnc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kasmvnc-gui
+    privileged: true # FUSE를 위한 권한 설정
     volumes:
-      - ../shared:/home/user/shared
-      - ubuntu-kasmvnc-home:/home/user  # 사용자 홈 디렉토리 데이터 보존
-    restart: unless-stopped
-    # 성능 최적화 설정
-    deploy:
-      resources:
-        limits:
-          cpus: '2'       # CPU 코어 2개 할당 (호스트 시스템에 맞게 조정하세요)
-          memory: 4G      # 메모리 4GB 할당 (호스트 시스템에 맞게 조정하세요)
-        reservations:
-          memory: 2G      # 최소 2GB 메모리 예약          
-    
-    devices:
-      # FUSE 사용을 위한 설정 추가
       - /dev/fuse:/dev/fuse
+      - ../shared:/home/kasm-user/shared
+    ports:
+      - "6901:6901"
+    environment:
+      - RESOLUTION=1920x1080
+      - VNC_PASSWORD=password  # 원하는 비밀번호로 변경하세요
     cap_add:
       - SYS_ADMIN
+    devices:
+      - /dev/fuse
     security_opt:
       - apparmor:unconfined
-    # 추가 성능 최적화 설정
-    shm_size: 2gb         # 공유 메모리 크기 증가 (브라우저 성능 향상)
-    ipc: host             # IPC 네임스페이스 공유 (메모리 효율 향상)
-    
-    # GPU 가속이 필요하면 아래 주석을 해제하세요
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
-# 영구 데이터 저장을 위한 볼륨 정의
-volumes:
-  ubuntu-kasmvnc-home:  # 사용자 홈 디렉토리용 볼륨 
+    restart: unless-stopped 

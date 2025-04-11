@@ -33,7 +33,7 @@ echo.
 echo KasmVNC 모드를 선택하셨습니다.
 echo 브라우저에서 접속할 수 있는 컨테이너를 시작합니다.
 echo.
-cd kasmvnc
+cd KasmVNC
 
 echo 메뉴:
 echo 1. 새 컨테이너 생성 (처음 실행시)
@@ -79,14 +79,17 @@ goto :KasmVNC_CheckStatus
 :KasmVNC_CheckStatus
 echo.
 echo 컨테이너 상태:
-docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter "name=ubuntu-kasmvnc"
+docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter "name=kasmvnc-gui"
 
 echo.
 echo 설치 및 실행이 완료되었습니다!
 echo 웹 브라우저에서 다음 주소로 접속하세요:
-echo   http://localhost:6080/
+echo   http://localhost:6901/
 echo.
 echo 기본 VNC 패스워드: password
+echo.
+echo [중요] 지속되는 데이터는 프로젝트 루트의 'shared' 폴더에 저장하세요.
+echo       컨테이너 내부에서는 /home/kasm-user/shared 경로로 접근할 수 있습니다.
 echo.
 cd ..
 pause
