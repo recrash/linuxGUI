@@ -5,7 +5,7 @@ services:
     environment:
       - DISPLAY=host.docker.internal:0.0
     volumes:
-      - ./shared:/home/user/shared
+      - ../shared:/home/user/shared
       - ubuntu-home:/home/user  # 사용자 홈 디렉토리 데이터 보존
     restart: unless-stopped
     # 성능 최적화 설정
