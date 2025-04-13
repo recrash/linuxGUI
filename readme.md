@@ -184,7 +184,7 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 2. VcXsrv 설정에서 "Disable access control" 옵션이 체크되어 있는지 확인하세요.
 3. Docker 컨테이너를 재시작하세요:
    ```bash
-   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
+   cd vcxsrv
    docker-compose restart
    ```
 4. DISPLAY 환경 변수가 올바르게 설정되었는지 확인하세요:
@@ -199,7 +199,7 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 
 1. 컨테이너가 실행 중인지 확인하세요:
    ```bash
-   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
+   cd KasmVNC
    docker-compose ps
    ```
 
