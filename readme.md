@@ -33,7 +33,7 @@
 
 - **공통 요구사항**
   - Windows 10 또는 11
-  - Docker Desktop
+  - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
   
 - **VcXsrv 방식 추가 요구사항**
   - VcXsrv (X-Server for Windows)
