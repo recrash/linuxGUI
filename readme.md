@@ -345,14 +345,37 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
 이 환경은 AppImage 애플리케이션을 실행할 수 있도록 FUSE 지원이 설정되어 있습니다:
 
 1. 원하는 AppImage 파일을 호스트의 `shared` 폴더에 복사합니다.
-2. 컨테이너 내부에서 터미널을 열고 다음과 같이 실행 권한을 부여합니다:
-   ```bash
-   chmod +x ~/shared/애플리케이션명.AppImage
-   ```
-3. AppImage 파일을 실행합니다:
-   ```bash
-   ~/shared/애플리케이션명.AppImage
-   ```
+
+2. **GUI로 실행하기 (권장)**:
+   - 파일 관리자에서 AppImage 파일을 우클릭합니다.
+   - "Properties" 또는 "속성"을 선택합니다.
+   - "Permissions" 또는 "권한" 탭으로 이동합니다.
+   - "Allow executing file as program" 또는 "프로그램으로 실행 허용" 옵션을 체크합니다.
+   - "OK" 또는 "확인"을 클릭하여 설정을 저장합니다.
+   - 이제 AppImage 파일을 더블클릭하여 바로 실행할 수 있습니다.
+
+3. **터미널로 실행하기 (대안)**:
+   - 컨테이너 내부에서 터미널을 열고 다음과 같이 실행 권한을 부여합니다:
+     ```bash
+     chmod +x ~/shared/애플리케이션명.AppImage
+     ```
+   - AppImage 파일을 실행합니다:
+     ```bash
+     ~/shared/애플리케이션명.AppImage
+     ```
+   - 또는 AppImage를 압축 풀어서 실행하는 방법 (FUSE 관련 문제 발생 시 유용):
+     ```bash
+     # 추출 디렉토리 생성
+     mkdir -p ~/extracted-appimage
+     
+     # AppImage 파일 압축 풀기
+     ~/shared/애플리케이션명.AppImage --appimage-extract -o ~/extracted-appimage
+     
+     # 추출된 앱 실행하기
+     cd ~/extracted-appimage/squashfs-root
+     ./AppRun
+     ```
+
 4. 자주 사용하는 AppImage 파일은 홈 디렉토리의 `AppImages` 폴더에 저장하는 것이 좋습니다:
    ```bash
    mkdir -p ~/AppImages
