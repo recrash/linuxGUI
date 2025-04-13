@@ -3,7 +3,7 @@ chcp 65001 > nul
 echo Ubuntu XFCE with Chrome in Docker 설치 및 실행
 echo ==================================================
 
-if not exist shared mkdir shared
+if not exist ..\shared mkdir ..\shared
 
 echo VcXsrv(XLaunch)가 실행 중인지 확인하세요!
 echo 실행되지 않았다면, 시작 메뉴에서 XLaunch를 실행하고 설정하세요.
@@ -63,6 +63,9 @@ docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}" --filter
 echo.
 echo 설치 및 실행이 완료되었습니다!
 echo 이제 Ubuntu XFCE 데스크톱이 새 창에 표시됩니다.
+echo.
+echo [중요] 지속되는 데이터는 프로젝트 루트의 'shared' 폴더에 저장하세요.
+echo       컨테이너 내부에서는 /home/user/shared 경로로 접근할 수 있습니다.
 echo.
 echo [컨테이너 관리 명령어]
 echo  - 컨테이너 중지: docker-compose stop

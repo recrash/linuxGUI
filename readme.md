@@ -45,9 +45,11 @@
 
 1. 이 저장소를 다운로드하거나 클론합니다.
 2. `linux-gui-launcher.bat` 파일을 더블클릭하여 실행합니다.
-3. 실행 방식을 선택합니다:
+3. 공유 폴더가 자동으로 생성됩니다 (프로젝트 루트의 `shared` 폴더).
+4. 실행 방식을 선택합니다:
    - VcXsrv 방식: Windows에 VcXsrv를 설치하여 사용
    - KasmVNC 방식: 웹 브라우저를 통해 사용 (별도 설치 불필요)
+
 
 ## 3. VcXsrv 방식 사용하기
 
@@ -157,15 +159,17 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 
 ### 5.1 데이터 지속성
 
-- **홈 디렉토리 데이터**: KasmVNC 컨테이너의 경우 `/home/kasm-user/shared` 디렉토리가 호스트의 프로젝트 루트 디렉토리의 `shared` 폴더에 마운트되어 데이터가 유지됩니다.
+- **홈 디렉토리 데이터**: 
+   - VcXsrv 모드: ubuntu-home이라는 Docker 볼륨에 저장되어 컨테이너를 재시작해도 유지됩니다.
+   - KasmVNC 모드: 컨테이너 내부 데이터는 컨테이너를 재구축하면 초기화됩니다.
 - `docker-compose down` 명령은 컨테이너를 중지하고 제거하지만, 볼륨 데이터는 유지됩니다.
 - 볼륨 데이터를 포함하여 모든 것을 삭제하려면 명령 프롬프트에서 `docker-compose down -v` 명령을 실행하세요.
 
 ### 5.2 공유 폴더 사용
 
-`shared` 디렉토리는 호스트와 컨테이너 간에 파일을 공유하는 데 사용됩니다.
+`shared` 디렉토리는 호스트와 컨테이너 간에 파일을 공유하는 데 사용됩니다. 두 컨테이너 모드(VcXsrv와 KasmVNC) 모두 동일한 공유 폴더를 사용합니다.
 
-1. 호스트에서는 프로젝트 디렉토리 내의 `shared` 폴더에 접근할 수 있습니다.
+1. 호스트에서는 프로젝트 루트 디렉토리의 `shared` 폴더에 접근할 수 있습니다.
 2. 컨테이너 내부에서는 다음 경로로 접근할 수 있습니다:
    - VcXsrv 방식: `/home/user/shared`
    - KasmVNC 방식: `/home/kasm-user/shared`
@@ -180,7 +184,7 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 2. VcXsrv 설정에서 "Disable access control" 옵션이 체크되어 있는지 확인하세요.
 3. Docker 컨테이너를 재시작하세요:
    ```bash
-   cd vcxsrv
+   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
    docker-compose restart
    ```
 4. DISPLAY 환경 변수가 올바르게 설정되었는지 확인하세요:
@@ -195,7 +199,7 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 
 1. 컨테이너가 실행 중인지 확인하세요:
    ```bash
-   cd KasmVNC
+   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
    docker-compose ps
    ```
 
@@ -220,6 +224,9 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
    environment:
      - VNC_PASSWORD=원하는_비밀번호 # 비밀번호 변경
    ```
+6. startup.sh 파일의 줄 끝(line ending) 문제: 
+   Windows에서 파일을 편집한 경우 CRLF가 아닌 LF로 저장해야 합니다. 
+   VSCode나 Notepad++와 같은 에디터에서 줄 끝 형식을 LF로 변경하세요.
 
 ### 6.3 한글 표시 문제
 
@@ -227,14 +234,14 @@ KasmVNC 방식은 별도의 소프트웨어 설치 없이 웹 브라우저만으
 
 1. 컨테이너가 최신 버전으로 빌드되었는지 확인하세요:
    ```bash
-   cd vcxsrv  # 또는 cd novnc
+   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
    docker-compose down
    docker-compose up -d --build
    ```
 2. 컨테이너 내부에서 로케일 설정이 올바른지 확인하세요:
    ```bash
-   docker exec -it ubuntu-xfce bash -c "locale"  # VcXsrv 방식
-   docker exec -it ubuntu-novnc bash -c "locale"  # NoVNC 방식
+   docker exec -it ubuntu-xfce bash -c "locale"  # VcXsrv 방식   
+   docker exec -it kasmvnc-gui bash -c "locale"  # KasmVNC 방식
    ```
    `LANG`, `LANGUAGE`, `LC_ALL` 값이 모두 `ko_KR.UTF-8`로 설정되어 있어야 합니다.
 
@@ -245,7 +252,7 @@ FUSE 기능을 사용하는 AppImage 애플리케이션이 실행되지 않는 �
 1. Docker 컨테이너에 FUSE 관련 권한이 적절히 설정되어 있는지 확인하세요:
    ```bash
    docker exec -it ubuntu-xfce bash -c "ls -la /dev/fuse"  # VcXsrv 방식
-   docker exec -it ubuntu-novnc bash -c "ls -la /dev/fuse"  # NoVNC 방식
+   docker exec -it kasmvnc-gui bash -c "ls -la /dev/fuse"  # KasmVNC 방식
    ```
 
 2. 필수 패키지 설치:
@@ -280,6 +287,7 @@ FUSE 기능을 사용하는 AppImage 애플리케이션이 실행되지 않는 �
 
 6. 컨테이너를 재시작하고 다시 시도하세요:
    ```bash
+   cd [사용 중인 방식의 폴더]  # 예: vcxsrv 또는 KasmVNC
    docker-compose restart
    ```
 
@@ -311,7 +319,7 @@ Docker Desktop이 시작될 때 컨테이너가 자동으로 시작되도록 설
 1. 터미널에서 다음 명령어로 컨테이너에 접속합니다:
    ```bash
    docker exec -it ubuntu-xfce bash  # VcXsrv 방식
-   docker exec -it ubuntu-novnc bash  # NoVNC 방식
+   docker exec -it kasmvnc-gui bash  # KasmVNC 방식
    ```
 
 2. sudo 권한으로 apt-get을 사용하여 원하는 패키지를 설치합니다:
@@ -367,7 +375,8 @@ XFCE 데스크톱에서 크롬 브라우저를 더 쉽게 실행할 수 있도�
 
 - [Docker 공식 문서](https://docs.docker.com/)
 - [VcXsrv 프로젝트 페이지](https://sourceforge.net/projects/vcxsrv/)
-- [NoVNC 프로젝트 페이지](https://github.com/novnc/noVNC)
-- [TigerVNC 프로젝트 페이지](https://tigervnc.org/)
+- [KasmVNC 프로젝트 페이지](https://github.com/kasmtech/KasmVNC)
+- [KasmVNC 문서](https://www.kasmweb.com/kasmvnc/docs/latest/)
 - [Ubuntu 공식 문서](https://help.ubuntu.com/)
 - [XFCE 공식 문서](https://docs.xfce.org/)
+- [Docker Compose 문서](https://docs.docker.com/compose/)

@@ -3,7 +3,9 @@ chcp 65001 > nul
 echo Linux GUI 컨테이너 런처
 echo ==================================================
 
+echo 공유 폴더를 생성합니다...
 if not exist shared mkdir shared
+echo 공유 폴더 경로: %cd%\shared
 
 echo.
 echo 사용하실 Linux GUI 방식을 선택하세요:
@@ -90,6 +92,7 @@ echo 기본 VNC 패스워드: password
 echo.
 echo [중요] 지속되는 데이터는 프로젝트 루트의 'shared' 폴더에 저장하세요.
 echo       컨테이너 내부에서는 /home/kasm-user/shared 경로로 접근할 수 있습니다.
+echo       VcXsrv 모드에서는 /home/user/shared 경로로 접근할 수 있습니다.
 echo.
 cd ..
 pause
