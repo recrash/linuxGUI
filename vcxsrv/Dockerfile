@@ -64,6 +64,14 @@ RUN mkdir -p /etc/apt/keyrings \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# VSCode 설치
+RUN wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" \
+    && apt-get update \
+    && apt-get install -y code \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*    
+
 # 기본 사용자 생성
 ARG USERNAME=user
 ARG USER_UID=1001
