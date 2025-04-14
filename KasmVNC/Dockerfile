@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dbus \
     dbus-x11 \
     policykit-1 \
+    dos2unix \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -126,7 +127,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 시작 스크립트 추가
 COPY startup.sh $STARTUPDIR/
-RUN chmod +x $STARTUPDIR/startup.sh
+RUN chmod +x $STARTUPDIR/startup.sh && \
+    dos2unix $STARTUPDIR/startup.sh
 
 # X11 디렉토리 및 권한 설정
 RUN mkdir -p /tmp/.X11-unix && \
