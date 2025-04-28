@@ -113,9 +113,9 @@ RUN mkdir -p $HOME/.config/xfce4/xfconf/xfce-perchannel-xml/ \
 
 # 한국어 입력기 설정
 RUN mkdir -p $HOME/.config/ibus/bus && \
-    mkdir -p $HOME/.config/fcitx/conf && \
     mkdir -p $HOME/.config/autostart && \
-    echo "[Desktop Entry]\nName=Fcitx\nComment=Start Fcitx\nExec=fcitx -d\nIcon=fcitx\nTerminal=false\nType=Application\nCategories=System;Utility;\nStartupNotify=false\nX-GNOME-Autostart-Phase=Applications\nX-GNOME-Autostart-Delay=0\nX-GNOME-AutoRestart=false\nX-KDE-autostart-after=panel\nX-KDE-autostart-phase=1" > $HOME/.config/autostart/fcitx.desktop
+    echo "[Desktop Entry]\nName=IBus\nComment=Start IBus\nExec=ibus-daemon -drx\nIcon=ibus\nTerminal=false\nType=Application\nCategories=System;Utility;\nStartupNotify=false\nX-GNOME-Autostart-Phase=Applications\nX-GNOME-Autostart-Delay=0\nX-GNOME-AutoRestart=false\nX-KDE-autostart-after=panel\nX-KDE-autostart-phase=1" > $HOME/.config/autostart/ibus.desktop && \
+    echo "export GTK_IM_MODULE=ibus\nexport QT_IM_MODULE=ibus\nexport XMODIFIERS=@im=ibus\nexport IBUS_ENABLE_SYNC_MODE=1\nexport IBUS_USE_PORTAL=1" >> $HOME/.bashrc
 
 # AppImage 지원 추가
 RUN apt-get update && apt-get install -y --no-install-recommends \

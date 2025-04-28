@@ -49,9 +49,14 @@ mkdir -p $HOME/.config/dbus
 dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/bus --fork
 
 # 한국어 입력기 설정
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+export IBUS_ENABLE_SYNC_MODE=1
+export IBUS_USE_PORTAL=1
+
+# ibus 데몬 시작
+ibus-daemon -drx &
 
 # VNC 비밀번호 설정 (비밀번호가 제공되지 않은 경우 랜덤 생성)
 if [ -z "$VNC_PASSWORD" ]; then
@@ -160,9 +165,6 @@ sleep 2
 
 # XFCE 세션 시작 - 여기서는 dbus-launch를 사용하여 시작
 dbus-launch --exit-with-session startxfce4 &
-
-# fcitx 입력기 시작
-fcitx -d &
 
 # 컨테이너 상태 모니터링
 echo "KasmVNC 환경이 시작되었습니다."
